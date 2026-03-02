@@ -1,1 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlayWrite — Project Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07101C;--bg2:#0C1A2B;--bg3:#112236;--bg4:#162C42;--bg5:#1C3550;
+  --cyan:#00D4FF;--cyan2:#009DC4;--clo:rgba(0,212,255,.12);--cxs:rgba(0,212,255,.06);
+  --green:#00E5A0;--glo:rgba(0,229,160,.1);
+  --orange:#FF8C42;--olo:rgba(255,140,66,.1);
+  --red:#FF3D6B;--rlo:rgba(255,61,107,.1);
+  --yellow:#FFD166;--ylo:rgba(255,209,102,.1);
+  --purple:#A78BFA;--plo:rgba(167,139,250,.1);
+  --t1:#E4F0FB;--t2:#7A9EBF;--t3:#365470;
+  --b1:rgba(0,212,255,.12);--b2:rgba(255,255,255,.05);--b3:rgba(255,255,255,.03);
+  --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:7px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);font-family:var(--fb);color:var(--t1);font-size:13px;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--t3);border-radius:3px;}
+input,select,textarea,button{font-family:var(--fb);}
+button{cursor:pointer;}
 
+/* ── LAYOUT ── */
+#shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:48px 1fr;height:100vh;}
+#topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 16px;gap:10px;}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:800;font-size:15px;letter-spacing:-.5px;text-decoration:none;color:var(--t1);}
+.logo-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 16px rgba(0,212,255,.35);}
+.logo em{color:var(--cyan);font-style:normal;}
+.logo-sub{font-size:10px;background:var(--clo);color:var(--cyan);padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:.5px;}
+.tb-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+
+/* ── SIDEBAR NAV ── */
+#sidenav{background:var(--bg2);border-right:1px solid var(--b2);display:flex;flex-direction:column;overflow-y:auto;}
+.snav-section{padding:12px 8px 4px;}
+.snav-label{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);padding:0 8px 6px;}
+.snav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .13s;margin-bottom:2px;border:1px solid transparent;}
+.snav-item:hover{background:var(--b2);color:var(--t1);}
+.snav-item.active{background:var(--clo);color:var(--cyan);border-color:var(--b1);}
+.snav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.snav-div{height:1px;background:var(--b2);margin:6px 10px;}
+
+/* ── MAIN PANELS ── */
+#content{overflow:hidden;display:flex;flex-direction:column;}
+.panel{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.panel.active{display:flex;}
+.ph{padding:14px 20px 10px;border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--bg2);}
+.pt{font-family:var(--fd);font-size:16px;font-weight:700;}
+.ps{font-size:11px;color:var(--t3);margin-top:2px;}
+.pa{margin-left:auto;display:flex;gap:6px;align-items:center;}
+.pb{flex:1;overflow-y:auto;padding:18px 20px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .13s;white-space:nowrap;}
+.btn-p{background:var(--cyan);color:var(--bg);}
+.btn-p:hover{background:#26DDFF;box-shadow:0 0 14px rgba(0,212,255,.3);}
+.btn-s{background:var(--green);color:var(--bg);}
+.btn-s:hover{background:#26FFBB;}
+.btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2);}
+.btn-g:hover{color:var(--t1);border-color:var(--b1);}
+.btn-d{background:var(--rlo);color:var(--red);border:1px solid rgba(255,61,107,.2);}
+.btn-d:hover{background:rgba(255,61,107,.2);}
+.btn-o{background:var(--olo);color:var(--orange);border:1px solid rgba(255,140,66,.2);}
+.btn-sm{padding:3px 9px;font-size:11px;}
+
+/* ── CARDS ── */
+.card{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:14px;}
+.card-hd{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin-bottom:10px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+/* ── FORMS ── */
+.fl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:4px;display:block;}
+.fi,.fsel{background:var(--bg);border:1px solid var(--b2);border-radius:5px;padding:7px 10px;font-size:12px;color:var(--t1);width:100%;transition:border-color .13s;}
+.fi:focus,.fsel:focus{outline:none;border-color:var(--cyan);}
+.fi.mono{font-family:var(--fm);font-size:11px;}
+.ffield{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+textarea.fi{resize:vertical;min-height:70px;}
+.fsel{appearance:none;cursor:pointer;}
+
+/* ── SECTION HEADING ── */
+.stl{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:7px;margin:14px 0 8px;}
+.stl::after{content:'';flex:1;height:1px;background:var(--b2);}
+.stl:first-child{margin-top:0;}
+
+/* ── PROJECT CARDS ── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px;}
+.proj-card{background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;}
+.proj-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,var(--cxs));opacity:0;transition:opacity .2s;}
+.proj-card:hover{border-color:var(--b1);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.proj-card:hover::before{opacity:1;}
+.proj-card.current{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan),0 4px 20px rgba(0,212,255,.15);}
+.proj-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px;flex-shrink:0;}
+.proj-name{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.proj-meta{font-size:10px;color:var(--t3);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.proj-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;font-size:9px;font-weight:700;background:var(--b2);color:var(--t2);}
+.proj-actions{display:flex;gap:5px;margin-top:10px;}
+.proj-empty{border:2px dashed var(--b2);border-radius:var(--r);padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;cursor:pointer;transition:border-color .2s;}
+.proj-empty:hover{border-color:var(--cyan);}
+.proj-empty-icon{font-size:28px;opacity:.4;}
+.proj-empty-lbl{font-size:12px;color:var(--t3);}
+
+/* ── IMPORT STEPPER ── */
+.stepper{display:flex;align-items:center;gap:0;margin-bottom:24px;}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);flex-shrink:0;transition:all .2s;}
+.step-dot.done{background:var(--green);border-color:var(--green);color:var(--bg);}
+.step-dot.active{background:var(--cyan);border-color:var(--cyan);color:var(--bg);box-shadow:0 0 10px rgba(0,212,255,.4);}
+.step-line{flex:1;height:2px;background:var(--b2);transition:background .3s;}
+.step-line.done{background:var(--green);}
+.step-lbl{font-size:10px;color:var(--t3);margin-top:5px;text-align:center;width:80px;flex-shrink:0;}
+
+/* ── FILE DROP ZONE ── */
+.dropzone{border:2px dashed var(--b2);border-radius:10px;padding:36px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--cyan);background:var(--cxs);}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.dropzone-icon{font-size:36px;opacity:.5;}
+.dropzone-title{font-family:var(--fd);font-size:16px;font-weight:700;color:var(--t1);}
+.dropzone-sub{font-size:11px;color:var(--t3);}
+.dropzone-or{font-size:10px;color:var(--t3);margin:4px 0;}
+.dz-btn{background:var(--clo);color:var(--cyan);border:1px solid var(--b1);border-radius:5px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.dz-btn:hover{background:rgba(0,212,255,.2);}
+
+/* ── IMPORT PREVIEW TABLE ── */
+.import-preview{background:var(--bg);border:1px solid var(--b2);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+.ip-head{padding:8px 12px;background:var(--bg3);border-bottom:1px solid var(--b2);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px;}
+.ip-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--b3);font-size:12px;}
+.ip-row:last-child{border-bottom:none;}
+.ip-icon{font-size:14px;flex-shrink:0;}
+.ip-label{color:var(--t2);flex:1;}
+.ip-count{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--cyan);}
+.ip-warn{background:var(--olo);color:var(--orange);border:1px solid rgba(255,140,66,.2);border-radius:5px;padding:8px 12px;font-size:11px;display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;}
+.ip-ok{background:var(--glo);color:var(--green);border:1px solid rgba(0,229,160,.2);border-radius:5px;padding:8px 12px;font-size:11px;display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;}
+
+/* ── PROGRESS BAR ── */
+.pbar-wrap{background:var(--bg);border-radius:4px;overflow:hidden;height:6px;margin:6px 0;}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:4px;transition:width .4s ease;}
+
+/* ── ENV MANAGER ── */
+.env-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.env-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--b2);border-radius:6px;transition:border-color .13s;}
+.env-item:hover{border-color:var(--b1);}
+.env-item.active-env{border-color:var(--cyan);background:var(--clo);}
+.env-led{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.env-name-display{font-weight:600;color:var(--t1);flex:1;}
+.env-url{font-size:10px;color:var(--t3);font-family:var(--fm);flex:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.env-badge{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;background:var(--clo);color:var(--cyan);}
+.color-swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid transparent;transition:border-color .13s;}
+.color-swatch:hover,.color-swatch.sel{border-color:var(--t1);}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:8px;font-size:12px;transform:translateY(80px);opacity:0;transition:all .25s;z-index:9999;pointer-events:none;}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:800;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:0;width:440px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;animation:modalIn .2s ease;}
+@keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{padding:14px 18px;border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:8px;font-family:var(--fd);font-size:15px;font-weight:700;flex-shrink:0;}
+.modal-body{padding:18px;overflow-y:auto;flex:1;}
+.modal-foot{padding:12px 18px;border-top:1px solid var(--b2);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;}
+.modal-close{margin-left:auto;background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:3px;}
+.modal-close:hover{color:var(--t1);background:var(--b2);}
+
+/* ── MISC ── */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+.b-cyan{background:var(--clo);color:var(--cyan);}
+.b-green{background:var(--glo);color:var(--green);}
+.b-orange{background:var(--olo);color:var(--orange);}
+.b-red{background:var(--rlo);color:var(--red);}
+.b-purple{background:var(--plo);color:var(--purple);}
+.b-grey{background:var(--b2);color:var(--t2);}
+.mono{font-family:var(--fm);}
+.warn-box{background:var(--olo);border:1px solid rgba(255,140,66,.25);border-radius:6px;padding:10px 13px;font-size:11px;color:var(--orange);display:flex;gap:8px;margin-bottom:12px;}
+.info-box{background:var(--clo);border:1px solid var(--b1);border-radius:6px;padding:10px 13px;font-size:11px;color:var(--cyan);display:flex;gap:8px;margin-bottom:12px;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);padding:7px 10px;border-bottom:1px solid var(--b2);}
+.tbl td{padding:7px 10px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--b3);}
+.tbl tr:hover td{background:var(--b2);color:var(--t1);}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px;text-align:center;color:var(--t3);}
+.empty-icon{font-size:32px;opacity:.3;}
+</style>
+</head>
+<body>
+
+<div id="shell">
+
+<!-- ── TOP BAR ── -->
+<div id="topbar">
+  <a class="logo" href="https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html" target="_blank">
+    <div class="logo-mark">🎭</div>
+    Play<em>Write</em>
+    <span class="logo-sub">PROJECT MANAGER</span>
+  </a>
+  <div class="tb-right">
+    <span id="activeProjLabel" style="font-size:11px;color:var(--t3)">No project open</span>
+    <button class="btn btn-p btn-sm" onclick="openInPlayArc()">▶ Open in PlayWrite</button>
+  </div>
+</div>
+
+<!-- ── SIDE NAV ── -->
+<div id="sidenav">
+  <div class="snav-section">
+    <div class="snav-label">Projects</div>
+    <div class="snav-item active" data-panel="projects" onclick="showPanel('projects',this)">
+      <span class="snav-icon">📁</span>My Projects
+    </div>
+    <div class="snav-item" data-panel="import-katalon" onclick="showPanel('import-katalon',this)">
+      <span class="snav-icon">📥</span>Import Katalon
+    </div>
+  </div>
+  <div class="snav-div"></div>
+  <div class="snav-section">
+    <div class="snav-label">Configuration</div>
+    <div class="snav-item" data-panel="environments" onclick="showPanel('environments',this)">
+      <span class="snav-icon">🌐</span>Environments
+    </div>
+    <div class="snav-item" data-panel="settings" onclick="showPanel('settings',this)">
+      <span class="snav-icon">⚙️</span>Preferences
+    </div>
+  </div>
+  <div class="snav-div" style="margin-top:auto"></div>
+  <div class="snav-section">
+    <div class="snav-label">Help</div>
+    <div class="snav-item" onclick="showPanel('about',this)">
+      <span class="snav-icon">ℹ️</span>About
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div id="content">
+
+<!-- ══════════════════════════════════════
+     PANEL: MY PROJECTS
+══════════════════════════════════════ -->
+<div class="panel active" id="panel-projects">
+  <div class="ph">
+    <div><div class="pt">My Projects</div><div class="ps" id="projCount">Loading…</div></div>
+    <div class="pa">
+      <button class="btn btn-g btn-sm" onclick="showPanel('import-katalon', document.querySelector('[data-panel=import-katalon]'))">📥 Import Katalon</button>
+      <button class="btn btn-p btn-sm" onclick="showNewProjectModal()">+ New Project</button>
+    </div>
+  </div>
+  <div class="pb">
+    <div class="stl" style="margin-top:0">Recent</div>
+    <div class="proj-grid" id="projGrid">
+      <!-- rendered by JS -->
+    </div>
+
+    <div class="stl">All Projects</div>
+    <div style="background:var(--bg3);border:1px solid var(--b2);border-radius:var(--r);overflow:hidden;">
+      <table class="tbl" id="projTable">
+        <thead><tr><th>Name</th><th>Source</th><th>Suites</th><th>Objects</th><th>Environments</th><th>Modified</th><th></th></tr></thead>
+        <tbody id="projTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: IMPORT KATALON
+══════════════════════════════════════ -->
+<div class="panel" id="panel-import-katalon">
+  <div class="ph">
+    <div><div class="pt">Import Katalon Project</div><div class="ps">Convert a Katalon Studio project into PlayWrite format</div></div>
+    <div class="pa">
+      <button class="btn btn-g btn-sm" id="importResetBtn" onclick="resetImport()" style="display:none">↩ Start Over</button>
+    </div>
+  </div>
+  <div class="pb">
+
+    <!-- Stepper -->
+    <div style="display:flex;align-items:flex-start;margin-bottom:28px;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="step-dot active" id="sd1">1</div>
+        <div class="step-lbl" id="sl1">Select ZIP</div>
+      </div>
+      <div class="step-line" id="sline1" style="margin-top:13px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="step-dot" id="sd2">2</div>
+        <div class="step-lbl" id="sl2">Analyse</div>
+      </div>
+      <div class="step-line" id="sline2" style="margin-top:13px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="step-dot" id="sd3">3</div>
+        <div class="step-lbl" id="sl3">Configure</div>
+      </div>
+      <div class="step-line" id="sline3" style="margin-top:13px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="step-dot" id="sd4">4</div>
+        <div class="step-lbl" id="sl4">Import</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Upload -->
+    <div id="importStep1">
+      <div class="info-box">
+        <span>ℹ️</span>
+        <div>ZIP your Katalon project folder (right-click → Send to → Compressed folder) and upload it here. The importer reads <strong>Scripts/</strong>, <strong>Object Repository/</strong>, <strong>Keywords/</strong>, <strong>Data Files/</strong>, and <strong>Test Cases/</strong>.</div>
+      </div>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('zipInput').click()">
+        <input type="file" id="zipInput" accept=".zip" onchange="handleZip(this.files[0])">
+        <div class="dropzone-icon">🗜️</div>
+        <div class="dropzone-title">Drop Katalon Project ZIP here</div>
+        <div class="dropzone-sub">or click to browse</div>
+        <div class="dropzone-or">──── or ────</div>
+        <div class="dz-btn" onclick="event.stopPropagation();document.getElementById('zipInput').click()">📂 Browse for ZIP file</div>
+      </div>
+      <div class="stl">What gets imported</div>
+      <div class="g3" style="gap:10px">
+        <div class="card" style="padding:10px 12px">
+          <div style="font-size:18px;margin-bottom:6px">🗄</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px">Object Repository</div>
+          <div style="font-size:10px;color:var(--t3)">.rs files → PlayWrite Object Repo with healscore calculated from selector quality</div>
+        </div>
+        <div class="card" style="padding:10px 12px">
+          <div style="font-size:18px;margin-bottom:6px">🔧</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px">Test Cases → Suites</div>
+          <div style="font-size:10px;color:var(--t3)">.groovy scripts → PlayWrite Suites with steps mapped from WebUI.* calls</div>
+        </div>
+        <div class="card" style="padding:10px 12px">
+          <div style="font-size:18px;margin-bottom:6px">🔑</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px">Keywords</div>
+          <div style="font-size:10px;color:var(--t3)">Custom @Keyword methods → PlayWrite Keyword Library classes with Playwright bodies</div>
+        </div>
+        <div class="card" style="padding:10px 12px">
+          <div style="font-size:18px;margin-bottom:6px">📋</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px">Data Files</div>
+          <div style="font-size:10px;color:var(--t3)">Excel/CSV test data → PlayWrite Data Tables with column headers preserved</div>
+        </div>
+        <div class="card" style="padding:10px 12px">
+          <div style="font-size:18px;margin-bottom:6px">🌐</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px">Profiles → Envs</div>
+          <div style="font-size:10px;color:var(--t3)">Katalon Profiles (default, staging, prod) → PlayWrite Environments with variables</div>
+        </div>
+        <div class="card" style="padding:10px 12px">
+          <div style="font-size:18px;margin-bottom:6px">⚡</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:3px">Selector Healing</div>
+          <div style="font-size:10px;color:var(--t3)">All XPath/CSS selectors scored. Brittle ones flagged with ⚠ and queued for healing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Analysing -->
+    <div id="importStep2" style="display:none">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-hd">Analysing ZIP</div>
+        <div id="analyseLog" style="font-family:var(--fm);font-size:11px;color:var(--t2);line-height:1.8;min-height:120px;"></div>
+        <div class="pbar-wrap"><div class="pbar-fill" id="analysePbar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Step 3: Preview & Configure -->
+    <div id="importStep3" style="display:none">
+      <div class="ip-ok" id="importOkBox">
+        <span>✅</span><div id="importOkMsg">Ready to import</div>
+      </div>
+      <div class="ip-warn" id="importWarnBox" style="display:none">
+        <span>⚠️</span><div id="importWarnMsg"></div>
+      </div>
+
+      <div class="g2" style="margin-bottom:14px;gap:14px">
+        <div>
+          <div class="stl" style="margin-top:0">Import Summary</div>
+          <div class="import-preview">
+            <div class="ip-head">📦 Contents detected</div>
+            <div class="ip-row"><span class="ip-icon">🗄</span><span class="ip-label">Objects</span><span class="ip-count" id="ipObjCount">0</span></div>
+            <div class="ip-row"><span class="ip-icon">🔧</span><span class="ip-label">Test Suites</span><span class="ip-count" id="ipSuiteCount">0</span></div>
+            <div class="ip-row"><span class="ip-icon">🔑</span><span class="ip-label">Keywords</span><span class="ip-count" id="ipKwCount">0</span></div>
+            <div class="ip-row"><span class="ip-icon">📋</span><span class="ip-label">Data Tables</span><span class="ip-count" id="ipTableCount">0</span></div>
+            <div class="ip-row"><span class="ip-icon">⚠️</span><span class="ip-label">Brittle selectors flagged</span><span class="ip-count" id="ipWarnCount" style="color:var(--orange)">0</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="stl" style="margin-top:0">Project Settings</div>
+          <div class="ffield">
+            <label class="fl">Project Name</label>
+            <input class="fi" id="impProjName" placeholder="e.g. Pizza HQ">
+          </div>
+          <div class="ffield">
+            <label class="fl">Base URL (overrides Katalon profiles)</label>
+            <input class="fi mono" id="impBaseUrl" placeholder="https://your-app.com">
+          </div>
+          <div class="ffield">
+            <label class="fl">Default Browser</label>
+            <select class="fsel fi">
+              <option value="chromium">Chromium</option>
+              <option value="firefox">Firefox</option>
+              <option value="webkit">WebKit (Safari)</option>
+            </select>
+          </div>
+          <div class="ffield">
+            <label class="fl">On conflict with existing project</label>
+            <select class="fsel fi" id="impConflict">
+              <option value="new">Create as new project</option>
+              <option value="replace">Replace existing</option>
+              <option value="merge">Merge (add new items only)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="stl">Detected files</div>
+      <div style="background:var(--bg3);border:1px solid var(--b2);border-radius:6px;overflow:hidden;margin-bottom:16px;">
+        <table class="tbl">
+          <thead><tr><th>File</th><th>Type</th><th>Status</th></tr></thead>
+          <tbody id="detectedFilesTable"></tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-g" onclick="resetImport()">↩ Start Over</button>
+        <button class="btn btn-p" onclick="runImport()">📥 Import Project →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Done -->
+    <div id="importStep4" style="display:none;flex-direction:column;align-items:center;padding:30px;text-align:center;gap:14px">
+      <div style="font-size:52px">🎉</div>
+      <div style="font-family:var(--fd);font-size:22px;font-weight:800;color:var(--t1)" id="importDoneTitle">Project Imported!</div>
+      <div style="font-size:13px;color:var(--t2)" id="importDoneDesc"></div>
+      <div class="import-preview" style="width:340px;text-align:left">
+        <div class="ip-head">📦 Imported</div>
+        <div class="ip-row"><span class="ip-icon">🗄</span><span class="ip-label">Objects</span><span class="ip-count" id="doneObjs">0</span></div>
+        <div class="ip-row"><span class="ip-icon">🔧</span><span class="ip-label">Suites</span><span class="ip-count" id="doneSuites">0</span></div>
+        <div class="ip-row"><span class="ip-icon">🔑</span><span class="ip-label">Keywords</span><span class="ip-count" id="doneKws">0</span></div>
+        <div class="ip-row"><span class="ip-icon">📋</span><span class="ip-label">Data Tables</span><span class="ip-count" id="doneTables">0</span></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-g" onclick="resetImport()">Import Another</button>
+        <button class="btn btn-g" onclick="showPanel('projects',document.querySelector('[data-panel=projects]'))">📁 My Projects</button>
+        <button class="btn btn-p" onclick="openInPlayArc()">▶ Open in PlayWrite →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: ENVIRONMENTS
+══════════════════════════════════════ -->
+<div class="panel" id="panel-environments">
+  <div class="ph">
+    <div>
+      <div class="pt">Environments</div>
+      <div class="ps" id="envPanelSub">Define named environments for your projects</div>
+    </div>
+    <div class="pa">
+      <button class="btn btn-g btn-sm" onclick="showEnvModal()">+ Add Environment</button>
+      <button class="btn btn-p btn-sm" onclick="saveAllEnvs()">💾 Save All</button>
+    </div>
+  </div>
+  <div class="pb">
+    <div class="info-box">
+      <span>ℹ️</span>
+      <div>Environments let you run the same suite against different URLs and variable sets. The active environment is shown in the PlayWrite toolbar. You can add as many as you need — dev branches, staging slots, regions, etc.</div>
+    </div>
+
+    <div class="stl" style="margin-top:0">Active Environment</div>
+    <div class="env-list" id="envActiveSlot"></div>
+
+    <div class="stl">All Environments <span id="envCount" class="badge b-grey" style="margin-left:4px">0</span></div>
+    <div class="env-list" id="envList"></div>
+
+    <div class="stl">Variables</div>
+    <div class="card" id="envVarsCard">
+      <div style="color:var(--t3);font-size:11px">Select an environment to view and edit its variables.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: SETTINGS / PREFERENCES
+══════════════════════════════════════ -->
+<div class="panel" id="panel-settings">
+  <div class="ph">
+    <div><div class="pt">Preferences</div><div class="ps">Global PlayWrite settings</div></div>
+    <div class="pa"><button class="btn btn-p btn-sm" onclick="savePrefs()">💾 Save</button></div>
+  </div>
+  <div class="pb">
+    <div class="stl" style="margin-top:0">PlayWrite Demo URL</div>
+    <div class="ffield">
+      <label class="fl">URL for "Open in PlayWrite" button</label>
+      <input class="fi mono" id="prefPlayArcUrl" placeholder="https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html">
+    </div>
+
+    <div class="stl">Import Defaults</div>
+    <div class="frow">
+      <div class="ffield">
+        <label class="fl">Default Browser</label>
+        <select class="fsel fi" id="prefBrowser">
+          <option value="chromium">Chromium</option>
+          <option value="firefox">Firefox</option>
+          <option value="webkit">WebKit</option>
+        </select>
+      </div>
+      <div class="ffield">
+        <label class="fl">Healscore threshold (flag below this)</label>
+        <input class="fi" type="number" id="prefHealThresh" value="50" min="0" max="100">
+      </div>
+    </div>
+
+    <div class="stl">Data</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="card" style="padding:10px 14px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--t1);margin-bottom:2px">Export all projects</div>
+          <div style="font-size:10px;color:var(--t3)">Download all projects as a JSON backup file</div>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="exportAllProjects()">📤 Export JSON</button>
+      </div>
+      <div class="card" style="padding:10px 14px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--t1);margin-bottom:2px">Import projects backup</div>
+          <div style="font-size:10px;color:var(--t3)">Restore projects from a previously exported JSON file</div>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="importBackup()">📥 Import JSON</button>
+      </div>
+      <div class="card" style="padding:10px 14px;display:flex;align-items:center;gap:12px;border-color:rgba(255,61,107,.2)">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px">Clear all data</div>
+          <div style="font-size:10px;color:var(--t3)">Delete all projects and environments from local storage</div>
+        </div>
+        <button class="btn btn-d btn-sm" onclick="clearAllData()">🗑 Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL: ABOUT
+══════════════════════════════════════ -->
+<div class="panel" id="panel-about">
+  <div class="ph"><div class="pt">About</div></div>
+  <div class="pb" style="display:flex;flex-direction:column;align-items:center;padding:40px;text-align:center;gap:12px">
+    <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--cyan),var(--cyan2));display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 0 30px rgba(0,212,255,.3)">🎭</div>
+    <div style="font-family:var(--fd);font-size:24px;font-weight:800">Play<span style="color:var(--cyan)">Arc</span></div>
+    <div style="font-size:11px;color:var(--t3)">Project Manager · v1.0</div>
+    <div style="font-size:12px;color:var(--t2);max-width:400px;line-height:1.7">Manage multiple Playwright automation projects. Import from Katalon Studio, switch between projects, and configure environments — all without touching code.</div>
+    <div class="stl" style="width:100%;max-width:400px">Links</div>
+    <div style="display:flex;gap:10px">
+      <a href="https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html" target="_blank" class="btn btn-p">🎭 Open PlayWrite</a>
+      <a href="https://kbcianfa.github.io/PlayWrite/PlayWrite-Developer-Reference.html" target="_blank" class="btn btn-g">📋 Developer Docs</a>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /shell -->
+
+<!-- ══ MODALS ══════════════════════════════════════════ -->
+
+<!-- New Project Modal -->
+<div class="modal-overlay" id="newProjModal">
+  <div class="modal">
+    <div class="modal-head">➕ New Project <button class="modal-close" onclick="closeModal('newProjModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="ffield">
+        <label class="fl">Project Name *</label>
+        <input class="fi" id="npName" placeholder="My Automation Project">
+      </div>
+      <div class="ffield">
+        <label class="fl">Description</label>
+        <input class="fi" id="npDesc" placeholder="What this project tests">
+      </div>
+      <div class="ffield">
+        <label class="fl">Base URL</label>
+        <input class="fi mono" id="npUrl" placeholder="https://your-app.com">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeModal('newProjModal')">Cancel</button>
+      <button class="btn btn-p" onclick="createNewProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Environment Modal -->
+<div class="modal-overlay" id="newEnvModal">
+  <div class="modal">
+    <div class="modal-head">🌐 Add Environment <button class="modal-close" onclick="closeModal('newEnvModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="ffield">
+        <label class="fl">Environment Name *</label>
+        <input class="fi" id="neeName" placeholder="e.g. UAT, Dev Branch, EU Staging">
+      </div>
+      <div class="ffield">
+        <label class="fl">Base URL *</label>
+        <input class="fi mono" id="neeUrl" placeholder="https://uat.yourapp.com">
+      </div>
+      <div class="ffield">
+        <label class="fl">Colour</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:4px 0">
+          <div class="color-swatch sel" style="background:var(--green)" data-color="var(--green)" onclick="pickEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--cyan)" data-color="var(--cyan)" onclick="pickEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--orange)" data-color="var(--orange)" onclick="pickEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--red)" data-color="var(--red)" onclick="pickEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--purple)" data-color="var(--purple)" onclick="pickEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--yellow)" data-color="var(--yellow)" onclick="pickEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--t2)" data-color="var(--t2)" onclick="pickEnvColor(this)"></div>
+        </div>
+      </div>
+      <div class="ffield">
+        <label class="fl">Notes / Description</label>
+        <input class="fi" id="neeDesc" placeholder="e.g. Pre-release UAT for QA team">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeModal('newEnvModal')">Cancel</button>
+      <button class="btn btn-p" onclick="createEnv()">Add Environment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rename/Edit Environment Modal -->
+<div class="modal-overlay" id="editEnvModal">
+  <div class="modal">
+    <div class="modal-head">✏️ Edit Environment <button class="modal-close" onclick="closeModal('editEnvModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editEnvId">
+      <div class="ffield">
+        <label class="fl">Name</label>
+        <input class="fi" id="editEnvName">
+      </div>
+      <div class="ffield">
+        <label class="fl">Base URL</label>
+        <input class="fi mono" id="editEnvUrl">
+      </div>
+      <div class="ffield">
+        <label class="fl">Colour</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:4px 0" id="editEnvColors">
+          <div class="color-swatch" style="background:var(--green)" data-color="var(--green)" onclick="pickEditEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--cyan)" data-color="var(--cyan)" onclick="pickEditEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--orange)" data-color="var(--orange)" onclick="pickEditEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--red)" data-color="var(--red)" onclick="pickEditEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--purple)" data-color="var(--purple)" onclick="pickEditEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--yellow)" data-color="var(--yellow)" onclick="pickEditEnvColor(this)"></div>
+          <div class="color-swatch" style="background:var(--t2)" data-color="var(--t2)" onclick="pickEditEnvColor(this)"></div>
+        </div>
+      </div>
+      <div class="ffield">
+        <label class="fl">Notes</label>
+        <input class="fi" id="editEnvDesc">
+      </div>
+      <div class="stl">Variables <span style="font-size:9px;color:var(--t3)">(key = value pairs injected at runtime)</span></div>
+      <div id="editEnvVarsWrap"></div>
+      <button class="btn btn-g btn-sm" onclick="addEnvVar()">+ Add Variable</button>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-d btn-sm" onclick="deleteEnv(document.getElementById('editEnvId').value)">🗑 Delete</button>
+      <button class="btn btn-g" onclick="closeModal('editEnvModal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveEditEnv()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"><span id="toastIc">✅</span><span id="toastMsg"></span></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  STORAGE
+// ════════════════════════════════════════════════════════════
+const STORE_KEY  = 'playarc_projects';
+const ENV_KEY    = 'playarc_envs';
+const PREFS_KEY  = 'playarc_prefs';
+const ACTIVE_KEY = 'playarc_active_project';
+
+function loadStore(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; }
+}
+function saveStore(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { toast('Storage error: '+e.message,'⚠️'); }
+}
+
+let projects  = loadStore(STORE_KEY, []);
+let envs      = loadStore(ENV_KEY, [
+  { id:'env-staging',    name:'Staging',     url:'https://staging.your-app.com',    color:'var(--orange)', desc:'Pre-release environment', vars:[], active:false },
+  { id:'env-production', name:'Production',  url:'https://your-app.com',             color:'var(--green)',  desc:'Live production',         vars:[], active:true  },
+  { id:'env-dev',        name:'Development', url:'http://localhost:3000',             color:'var(--cyan)',   desc:'Local dev server',         vars:[], active:false },
+]);
+let prefs     = loadStore(PREFS_KEY, { playArcUrl:'https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html', browser:'chromium', healThresh:50 });
+let activeId  = loadStore(ACTIVE_KEY, null);
+
+// ════════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════════
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.snav-item').forEach(i => i.classList.remove('active'));
+  const p = document.getElementById('panel-'+id);
+  if (p) p.classList.add('active');
+  if (el) el.classList.add('active');
+  // panel-specific refresh
+  if (id === 'projects')     renderProjects();
+  if (id === 'environments') renderEnvPanel();
+  if (id === 'settings')     loadPrefsUI();
+}
+
+// ════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════
+function toast(msg, ic='✅') {
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIc').textContent  = ic;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ════════════════════════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target===m) m.classList.remove('open'); }));
+
+// ════════════════════════════════════════════════════════════
+//  PROJECTS
+// ════════════════════════════════════════════════════════════
+const PROJ_COLORS = ['var(--cyan)','var(--green)','var(--purple)','var(--orange)','var(--red)','var(--yellow)'];
+const PROJ_ICONS  = ['🍕','🛒','🏦','🏥','🎓','🏠','📱','🚀','🌐','🎭','🔧','📊'];
+
+function projColor(idx) { return PROJ_COLORS[idx % PROJ_COLORS.length]; }
+function projIcon(idx)  { return PROJ_ICONS[idx % PROJ_ICONS.length]; }
+
+function renderProjects() {
+  document.getElementById('projCount').textContent = projects.length + ' project' + (projects.length===1?'':'s');
+  updateActiveLabel();
+
+  // Grid (recent 6)
+  const grid = document.getElementById('projGrid');
+  const recent = [...projects].sort((a,b)=>b.modified-a.modified).slice(0,6);
+  grid.innerHTML = recent.map((p,i) => projCardHTML(p, projects.indexOf(p))).join('') +
+    `<div class="proj-empty" onclick="showNewProjectModal()">
+      <div class="proj-empty-icon">➕</div>
+      <div style="font-size:12px;font-weight:600;color:var(--t2)">New Project</div>
+      <div class="proj-empty-lbl">Create a blank project</div>
+    </div>`;
+
+  // Table
+  const tbody = document.getElementById('projTableBody');
+  if (!projects.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:20px">No projects yet — import a Katalon project or create a new one</td></tr>';
+    return;
+  }
+  tbody.innerHTML = projects.map((p, i) => `
+    <tr style="cursor:pointer" onclick="setActive('${p.id}')">
+      <td><span style="font-weight:600;color:var(--t1)">${esc(p.name)}</span>${p.id===activeId?'<span class="badge b-cyan" style="margin-left:6px">active</span>':''}</td>
+      <td><span class="badge ${p.source==='katalon'?'b-orange':'b-grey'}">${p.source==='katalon'?'Katalon Import':'Manual'}</span></td>
+      <td>${p.suites?.length||0}</td>
+      <td>${p.objRepo?.length||0}</td>
+      <td>${(p.envs||[]).length + ' env' + ((p.envs||[]).length===1?'':'s')}</td>
+      <td style="color:var(--t3)">${timeAgo(p.modified)}</td>
+      <td style="text-align:right">
+        <button class="btn btn-g btn-sm" onclick="event.stopPropagation();setActive('${p.id}');openInPlayArc()" title="Open">▶</button>
+        <button class="btn btn-d btn-sm" onclick="event.stopPropagation();deleteProject('${p.id}')" title="Delete">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+function projCardHTML(p, i) {
+  const isActive = p.id === activeId;
+  const col = projColor(i);
+  return `<div class="proj-card ${isActive?'current':''}" onclick="setActive('${p.id}')">
+    ${isActive ? '<div style="position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;color:var(--cyan);background:var(--clo);padding:2px 6px;border-radius:3px;">ACTIVE</div>' : ''}
+    <div class="proj-icon" style="background:rgba(0,0,0,.3);border:1px solid ${col}30">${projIcon(i)}</div>
+    <div class="proj-name">${esc(p.name)}</div>
+    <div class="proj-meta">
+      <span class="proj-tag">${p.suites?.length||0} suites</span>
+      <span class="proj-tag">${p.objRepo?.length||0} objects</span>
+      <span class="proj-tag" style="color:${p.source==='katalon'?'var(--orange)':'var(--t3)'}">${p.source==='katalon'?'⬆ Katalon':'Manual'}</span>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-bottom:8px">${timeAgo(p.modified)}</div>
+    <div class="proj-actions">
+      <button class="btn btn-g btn-sm" style="flex:1" onclick="event.stopPropagation();setActive('${p.id}');openInPlayArc()">▶ Open</button>
+      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();deleteProject('${p.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+function setActive(id) {
+  activeId = id;
+  saveStore(ACTIVE_KEY, id);
+  // Write project data to localStorage for PlayWrite to pick up
+  const p = projects.find(x=>x.id===id);
+  if (p) {
+    saveStore('playarc_current', p);
+    updateActiveLabel();
+    renderProjects();
+    toast('Switched to "'+p.name+'"','📁');
+  }
+}
+
+function updateActiveLabel() {
+  const p = projects.find(x=>x.id===activeId);
+  document.getElementById('activeProjLabel').textContent = p ? '📁 ' + p.name : 'No project open';
+}
+
+function showNewProjectModal() { openModal('newProjModal'); document.getElementById('npName').focus(); }
+
+function createNewProject() {
+  const name = document.getElementById('npName').value.trim();
+  if (!name) { toast('Name required','⚠️'); return; }
+  const p = {
+    id: 'proj-' + Date.now(),
+    name,
+    desc: document.getElementById('npDesc').value.trim(),
+    url:  document.getElementById('npUrl').value.trim(),
+    source: 'manual',
+    modified: Date.now(),
+    suites: [], objRepo: [], dataTables: [], keywordLibs: [], listeners: [], envs: [],
+  };
+  projects.push(p);
+  saveStore(STORE_KEY, projects);
+  setActive(p.id);
+  closeModal('newProjModal');
+  renderProjects();
+  toast('"'+name+'" created','✅');
+}
+
+function deleteProject(id) {
+  const p = projects.find(x=>x.id===id);
+  if (!p || !confirm('Delete "'+p.name+'"? This cannot be undone.')) return;
+  projects = projects.filter(x=>x.id!==id);
+  if (activeId===id) { activeId = projects[0]?.id||null; saveStore(ACTIVE_KEY, activeId); }
+  saveStore(STORE_KEY, projects);
+  renderProjects();
+  toast('"'+p.name+'" deleted','🗑');
+}
+
+function openInPlayArc() {
+  if (!activeId) { toast('No project selected','⚠️'); return; }
+  const url = prefs.playArcUrl || 'https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html';
+  window.open(url + '?project=' + activeId, '_blank');
+  toast('Opened PlayWrite with active project','▶');
+}
+
+// ════════════════════════════════════════════════════════════
+//  KATALON IMPORT ENGINE  (v2 — full fidelity)
+// ════════════════════════════════════════════════════════════
+let importStep = 1;
+let parsedData = null;
+
+function resetImport() {
+  importStep = 1; parsedData = null;
+  setStep(1);
+  document.getElementById('importResetBtn').style.display = 'none';
+  document.getElementById('zipInput').value = '';
+  document.getElementById('analyseLog').innerHTML = '';
+  document.getElementById('analysePbar').style.width = '0%';
+  ['importStep2','importStep3','importStep4'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('importStep1').style.display = '';
+}
+
+function setStep(n) {
+  for (let i=1;i<=4;i++) {
+    const dot  = document.getElementById('sd'+i);
+    const line = document.getElementById('sline'+i);
+    dot.className  = 'step-dot' + (i<n?' done':i===n?' active':'');
+    if (line) line.className = 'step-line' + (i<n?' done':'');
+  }
+}
+
+async function handleZip(file) {
+  if (!file) return;
+  document.getElementById('importStep1').style.display = 'none';
+  document.getElementById('importStep2').style.display = '';
+  document.getElementById('importResetBtn').style.display = '';
+  setStep(2);
+
+  const log  = document.getElementById('analyseLog');
+  const pbar = document.getElementById('analysePbar');
+  const L = (msg, col='var(--t2)') => { log.innerHTML += `<div style="color:${col}">${msg}</div>`; log.scrollTop = log.scrollHeight; };
+
+  L('📦 Reading ZIP file…');
+  pbar.style.width = '10%';
+  await delay(200);
+
+  const buf   = await file.arrayBuffer();
+  const allFiles = parseZip(buf);
+  L(`✅ Extracted ${allFiles.length} entries from archive`, 'var(--green)');
+  pbar.style.width = '20%';
+  await delay(150);
+
+  // ── Categorise by extension / path ──────────────────────────
+  const rsFiles     = allFiles.filter(f => f.name.endsWith('.rs') && !f.name.includes('/.'));
+  const groovyFiles = allFiles.filter(f => f.name.endsWith('.groovy') && f.name.includes('/Scripts/'));
+  const tcFiles     = allFiles.filter(f => f.name.endsWith('.tc'));
+  const glblFiles   = allFiles.filter(f => f.name.endsWith('.glbl'));
+  const csvFiles    = allFiles.filter(f => f.name.match(/\.(csv|xlsx)$/i));
+  const prjFile     = allFiles.find(f  => f.name.endsWith('.prj'));
+  const customKwFile= allFiles.find(f  => f.name.includes('Libs/') && f.name.endsWith('.groovy') && !f.name.includes('/Scripts/'));
+  const settingsFiles = allFiles.filter(f => f.name.includes('/settings/'));
+
+  // ── Project name from .prj ───────────────────────────────────
+  let projName = file.name.replace(/\.zip$/i, '').replace(/_/g, ' ');
+  if (prjFile?.content) {
+    const nm = prjFile.content.match(/<n>([^<]+)<\/n>/);
+    if (nm) projName = nm[1];
+  }
+
+  L(`📋 Project name: <strong style="color:var(--t1)">${esc(projName)}</strong>`);
+  L(`🗄 Object Repository: ${rsFiles.length} .rs files`);
+  L(`🔧 Test Cases: ${tcFiles.length} .tc files  →  ${groovyFiles.length} Groovy scripts`);
+  L(`🌐 Profiles: ${glblFiles.length} .glbl files`);
+  L(`📋 Data Files: ${csvFiles.length} files`);
+  if (customKwFile) L(`🔑 Custom Keywords file detected`);
+  pbar.style.width = '35%';
+  await delay(200);
+
+  // ── Parse Object Repository ──────────────────────────────────
+  L('');
+  L('── Parsing Object Repository ──', 'var(--cyan)');
+  const objects = rsFiles.map((f, i) => parseRsFile(f, i+1));
+  const brittle = objects.filter(o => o.healscore < (prefs.healThresh || 50));
+  objects.forEach(o => {
+    const warn = o.healscore < (prefs.healThresh||50) ? ` <span style="color:var(--orange)">⚠ score ${o.healscore}</span>` : ` <span style="color:var(--green)">✓ ${o.healscore}</span>`;
+    L(`  ${esc(o.page)}/<strong style="color:var(--t1)">${esc(o.name)}</strong>  [${esc(o.selectorMethod)}]${warn}`);
+  });
+  if (brittle.length) L(`⚠ ${brittle.length} brittle selectors flagged (score < ${prefs.healThresh||50})`, 'var(--orange)');
+  pbar.style.width = '55%';
+  await delay(200);
+
+  // ── Parse Groovy Scripts → Suites ───────────────────────────
+  L('');
+  L('── Parsing Test Scripts ──', 'var(--cyan)');
+  const suites = groovyFiles.map((f, i) => {
+    const s = parseGroovy(f, i, objects);
+    L(`  ${esc(s.name)}: ${s.steps.length} steps`);
+    return s;
+  });
+  pbar.style.width = '70%';
+  await delay(200);
+
+  // ── Parse Custom Keywords ────────────────────────────────────
+  let keywordLibs = [];
+  if (customKwFile?.content) {
+    L('');
+    L('── Parsing Custom Keywords ──', 'var(--cyan)');
+    keywordLibs = parseCustomKeywords(customKwFile);
+    const totalKws = keywordLibs.reduce((s,l)=>s+l.keywords.length, 0);
+    L(`  ${keywordLibs.length} librar${keywordLibs.length===1?'y':'ies'}, ${totalKws} keyword${totalKws===1?'':'s'}`);
+  }
+  pbar.style.width = '80%';
+  await delay(200);
+
+  // ── Parse Profiles → Environments ───────────────────────────
+  L('');
+  L('── Parsing Execution Profiles ──', 'var(--cyan)');
+  const projEnvs = glblFiles.map(f => parseGlbl(f));
+  projEnvs.forEach(e => L(`  Profile: <strong style="color:var(--t1)">${esc(e.name)}</strong>  (${e.vars.length} variable${e.vars.length===1?'':'s'})`));
+  if (!projEnvs.length) L('  No custom profiles — default env will be created');
+  pbar.style.width = '88%';
+  await delay(200);
+
+  // ── Parse CSV Data Files ─────────────────────────────────────
+  let dataTables = [];
+  if (csvFiles.length) {
+    L('');
+    L('── Parsing Data Files ──', 'var(--cyan)');
+    dataTables = csvFiles.map((f,i) => parseCsvFile(f, i+1));
+    dataTables.forEach(t => L(`  ${esc(t.name)}: ${t.cols.length} columns, ${t.rows.length} rows`));
+  }
+  pbar.style.width = '95%';
+  await delay(200);
+
+  // ── Detect base URL ──────────────────────────────────────────
+  const url = extractBaseUrl(groovyFiles);
+  L('');
+  L(`🌐 Base URL: <span style="color:var(--cyan);font-family:monospace">${url || '(not detected)'}</span>`);
+
+  parsedData = { projName, objects, suites, brittle, csvFiles, dataTables, keywordLibs, projEnvs, url, fileName: file.name };
+  pbar.style.width = '100%';
+  L('');
+  L('✅ Analysis complete — review below', 'var(--green)');
+  await delay(350);
+  showPreview(parsedData);
+}
+
+// ════════════════════════════════════════════════════════════
+//  ZIP PARSER  (reads uncompressed stored entries)
+// ════════════════════════════════════════════════════════════
+function parseZip(buffer) {
+  const view    = new DataView(buffer);
+  const bytes   = new Uint8Array(buffer);
+  const dec     = new TextDecoder('utf-8', { fatal: false });
+  const files   = [];
+
+  // Walk the End-of-Central-Directory to find central directory
+  let eocd = -1;
+  for (let i = buffer.byteLength - 22; i >= 0; i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd === -1) return files;
+
+  const cdOffset = view.getUint32(eocd + 16, true);
+  const cdSize   = view.getUint32(eocd + 12, true);
+  let pos = cdOffset;
+
+  while (pos < cdOffset + cdSize && pos < buffer.byteLength - 4) {
+    if (view.getUint32(pos, true) !== 0x02014b50) break;
+    const fnLen      = view.getUint16(pos + 28, true);
+    const extraLen   = view.getUint16(pos + 30, true);
+    const commentLen = view.getUint16(pos + 32, true);
+    const localOff   = view.getUint32(pos + 42, true);
+    const compSize   = view.getUint32(pos + 20, true);  // compressed size from CD
+    const method     = view.getUint16(pos + 10, true);  // compression method from CD
+    const fileName   = dec.decode(bytes.slice(pos + 46, pos + 46 + fnLen));
+    pos += 46 + fnLen + extraLen + commentLen;
+
+    if (fileName.endsWith('/')) continue; // skip directories
+
+    // Local file header: 30 bytes fixed + fileName + extra
+    const localFnLen    = view.getUint16(localOff + 26, true);
+    const localExtraLen = view.getUint16(localOff + 28, true);
+    const dataStart     = localOff + 30 + localFnLen + localExtraLen;
+
+    let content = '';
+    if (method === 0 && compSize > 0) {
+      // Stored — read raw bytes
+      content = dec.decode(bytes.slice(dataStart, dataStart + compSize));
+    } else if (method === 8 && compSize > 0) {
+      // Deflate — use DecompressionStream if available
+      try {
+        const compressed = bytes.slice(dataStart, dataStart + compSize);
+        // We store deflate content as-is; text extraction attempted via TextDecoder
+        // (Full inflate would need pako; for XML/Groovy files most zips use Store)
+        content = dec.decode(compressed);
+      } catch { content = ''; }
+    }
+    files.push({ name: fileName, content });
+  }
+  return files;
+}
+
+// ════════════════════════════════════════════════════════════
+//  RS FILE PARSER  — respects selectorMethod priority
+// ════════════════════════════════════════════════════════════
+function parseRsFile(file, idx) {
+  const c = file.content;
+
+  // Object name — first <n> tag
+  const name = (c.match(/<n>([^<\r\n]+)<\/n>/) || [])[1]?.trim()
+             || file.name.replace(/.*[\\/]/, '').replace('.rs', '');
+
+  // Page/folder: everything between "Object Repository/" and the last "/"
+  const pageMatch = file.name.match(/Object Repository[\/\\](.+)[\/\\][^\/\\]+\.rs$/);
+  const page      = pageMatch ? pageMatch[1].replace(/[\/\\]/g, ' / ') : 'Unknown';
+
+  // selectorMethod — which key Katalon treats as primary
+  const selectorMethod = (c.match(/<selectorMethod>([^<]+)<\/selectorMethod>/) || [])[1]?.trim() || 'XPATH';
+
+  // Extract all selectors from selectorCollection entries
+  const selectors = {};
+  const entryRe = /<entry>\s*<key>([^<]+)<\/key>\s*<value>([^<]*)<\/value>\s*<\/entry>/g;
+  let em;
+  while ((em = entryRe.exec(c)) !== null) {
+    selectors[em[1].trim()] = em[2].trim();
+  }
+
+  // Also extract preferred XPaths from webElementXpaths (idRelative is usually best)
+  const idRelMatch = c.match(/<n>xpath:idRelative<\/n>[\s\S]*?<value>([^<]+)<\/value>/);
+  const hrefMatch  = c.match(/<n>xpath:href<\/n>[\s\S]*?<value>([^<]+)<\/value>/);
+  if (idRelMatch && !selectors['XPATH']) selectors['XPATH'] = idRelMatch[1].trim();
+  if (hrefMatch)  selectors['XPATH_HREF'] = hrefMatch[1].trim();
+
+  // aria-label from webElementProperties
+  const ariaRe   = /<n>aria-label<\/n>\s*(?:<[^>]+>\s*)*<value>([^<]+)<\/value>/;
+  const ariaMatch = c.match(ariaRe);
+  const aria      = ariaMatch ? '[aria-label="' + ariaMatch[1].trim() + '"]' : '';
+
+  // text content property (useful for BASIC selectors)
+  const textRe    = /<n>text<\/n>\s*(?:<[^>]+>\s*)*<value>([^<]+)<\/value>/;
+  const textMatch = c.match(textRe);
+  const textVal   = textMatch ? textMatch[1].trim() : '';
+
+  // href property
+  const hrefPropMatch = c.match(/<n>href<\/n>\s*(?:<[^>]+>\s*)*<value>([^<]+)<\/value>/);
+  const hrefVal       = hrefPropMatch ? hrefPropMatch[1].trim() : '';
+
+  // ── Determine best primary selector ─────────────────────────
+  // Priority: use selectorMethod, then fall back smartly
+  let primary = '';
+  if      (selectorMethod === 'XPATH' && selectors['XPATH']) primary = selectors['XPATH'];
+  else if (selectorMethod === 'CSS'   && selectors['CSS'])   primary = selectors['CSS'];
+  else if (selectorMethod === 'BASIC' && selectors['BASIC']) primary = selectors['BASIC'];
+  else if (selectors['XPATH'])   primary = selectors['XPATH'];
+  else if (selectors['CSS'])     primary = selectors['CSS'];
+  else if (selectors['BASIC'])   primary = selectors['BASIC'];
+
+  // ── Build PlayWrite selector set ───────────────────────────────
+  // PlayWrite: sel = data-testid, aria = aria-label, css = CSS class, xpath = XPath
+  const xpath = selectors['XPATH']       || '';
+  const css   = selectors['CSS']         || '';
+  const basic = selectors['BASIC']       || '';
+  // Build a clean href-based XPath if available and more stable
+  const xpathBest = selectors['XPATH_HREF'] || xpath;
+
+  // ── Healscore — rate selector stability ─────────────────────
+  let score = 40;
+  // aria-label is the gold standard
+  if (aria)                                       score += 30;
+  // data-testid
+  if (primary.includes('data-testid'))            score += 35;
+  // id-based xpath that is simple
+  if (xpath.match(/^\(\/\/\w+\[@id=/))            score += 20;
+  // href-based
+  if (hrefVal || primary.includes('@href'))        score += 15;
+  // role attribute
+  if (primary.includes('@role='))                  score += 10;
+  // stable CSS class (no child combinators, no positional)
+  if (css && !css.includes('>') && !css.match(/:\w+-child/)) score += 12;
+  // text content is moderately stable if short
+  if (textVal && textVal.length < 30)              score += 8;
+  // Penalise positional XPaths  (/div[3]/span[2]/...)
+  const posCount = (primary.match(/\[\d+\]/g) || []).length;
+  if (posCount >= 3)  score -= 25;
+  else if (posCount > 0) score -= posCount * 6;
+  // Penalise preceding:: / following:: neighbour XPaths
+  if (primary.includes('preceding::') || primary.includes('following::')) score -= 15;
+  // Penalise BASIC selectors that are neighbour-style
+  if (selectorMethod === 'BASIC' && basic.includes('normalize-space'))    score -= 10;
+  // Long CSS chains
+  if (css && css.split('.').length > 6)            score -= 8;
+  score = Math.max(10, Math.min(95, score));
+
+  return {
+    id: idx, name, page, selectorMethod,
+    sel: '',                  // data-testid (usually empty in Katalon projects)
+    aria,
+    css,
+    xpath: xpathBest,
+    basic,
+    href: hrefVal,
+    textVal,
+    primarySelector: primary,
+    healscore: score,
+    uses: 0,
+  };
+}
+
+// ════════════════════════════════════════════════════════════
+//  GROOVY PARSER  — label-aware, handles all WebUI.* calls
+// ════════════════════════════════════════════════════════════
+function parseGroovy(file, idx, objects) {
+  const raw       = file.content;
+  const suiteName = file.name.replace(/.*[\/\\]Scripts[\/\\]/, '').replace(/[\/\\][^\/\\]+\.groovy$/, '');
+  const lines     = raw.split(/\r?\n/);
+  const steps     = [];
+  let stepId      = 1;
+
+  // Groovy convention: single-quoted string on its own line = step label
+  // Pattern: lines[i] is a label ('text'), lines[i+1] is the WebUI call
+  // We also handle the case where a getText result is used by the NEXT verifyMatch
+
+  // Build a variable→object map for getText lookups
+  // e.g. "strKJS = WebUI.getText(findTestObject('...'))" → varName → objectName
+  const varMap = {};
+  for (const line of lines) {
+    const m = line.match(/^\s*(\w+)\s*=\s*WebUI\.getText\(findTestObject\('([^']+)'\)\)/);
+    if (m) varMap[m[1]] = m[2];
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw_line = lines[i];
+    const line     = raw_line.trim();
+
+    // ── Step label line: a bare single-quoted string ─────────
+    // Pattern: 'Some description'   (trimmed, starts+ends with single quote)
+    const isLabel = /^'[^']*'$/.test(line);
+    if (isLabel) {
+      // Label applies to the NEXT non-blank line
+      continue;
+    }
+
+    // Skip imports, blank lines, class lines, variable-only assignments (getText)
+    if (!line
+     || line.startsWith('import ')
+     || line.startsWith('//')
+     || line.startsWith('/*')
+     || line.startsWith('*')
+     || !line.includes('WebUI.')) continue;
+
+    // Find the label above this line (scan backwards for the nearest label line)
+    let desc = '';
+    for (let j = i - 1; j >= 0 && j >= i - 3; j--) {
+      const prev = lines[j].trim();
+      if (/^'[^']*'$/.test(prev)) { desc = prev.slice(1, -1); break; }
+      if (prev && !prev.startsWith('//')) break;
+    }
+
+    // ── Map WebUI call to PlayWrite action ─────────────────────
+    let action = 'custom', value = '', selector = '', objId = null;
+
+    // openBrowser — skip, merged into navigate
+    if (/WebUI\.openBrowser\(/.test(line)) {
+      continue;
+    }
+    // navigateToUrl
+    else if (/WebUI\.navigateToUrl\(/.test(line)) {
+      action = 'navigate';
+      const m = line.match(/navigateToUrl\(\s*'([^']+)'\s*\)/);
+      value = m ? m[1] : '';
+      desc  = desc || 'Navigate to URL';
+    }
+    // click
+    else if (/WebUI\.click\(/.test(line)) {
+      action = 'click';
+      desc   = desc || 'Click element';
+      const obj = resolveObject(line, objects);
+      if (obj) { selector = bestSelector(obj); objId = obj.id; obj.uses++; }
+    }
+    // setText / setEncryptedText / sendKeys
+    else if (/WebUI\.(setText|setEncryptedText|sendKeys)\(/.test(line)) {
+      action = 'fill';
+      desc   = desc || 'Fill field';
+      const obj = resolveObject(line, objects);
+      if (obj) { selector = bestSelector(obj); objId = obj.id; obj.uses++; }
+      const vm = line.match(/,\s*'([^']+)'\s*[,)]/);
+      value = vm ? vm[1] : '';
+    }
+    // verifyMatch — compare a captured variable to a literal
+    else if (/WebUI\.verifyMatch\(/.test(line)) {
+      action = 'assert_text';
+      desc   = desc || 'Assert text value';
+      // Extract expected value: verifyMatch(varName, 'expected', false)
+      const em = line.match(/verifyMatch\(\s*\w+\s*,\s*'([^']+)'/);
+      value = em ? em[1] : '';
+      // Recover which object the variable came from
+      const vm = line.match(/verifyMatch\(\s*(\w+)/);
+      if (vm && varMap[vm[1]]) {
+        const obj = objects.find(o => matchObjName(o, varMap[vm[1]]));
+        if (obj) { selector = bestSelector(obj); objId = obj.id; }
+      }
+    }
+    // verifyElementVisible
+    else if (/WebUI\.verifyElementVisible\(/.test(line)) {
+      action = 'assert_text';
+      desc   = desc || 'Assert element visible';
+      const obj = resolveObject(line, objects);
+      if (obj) { selector = bestSelector(obj); objId = obj.id; obj.uses++; }
+    }
+    // verifyElementNotVisible
+    else if (/WebUI\.verifyElementNotVisible\(/.test(line)) {
+      action = 'assert_text';
+      desc   = desc || 'Assert element not visible';
+      value  = '';          // assert_text with empty value = assert not visible
+      selector = '!' + ''; // prefix to indicate not-visible check
+      const obj = resolveObject(line, objects);
+      if (obj) { selector = '!' + bestSelector(obj); objId = obj.id; obj.uses++; }
+    }
+    // getText — pure assignment, no step
+    else if (/WebUI\.getText\(/.test(line)) {
+      continue;
+    }
+    // closeBrowser — handled by afterSuite listener, skip
+    else if (/WebUI\.closeBrowser\(/.test(line)) {
+      continue;
+    }
+    // delay / waitForElementVisible / waitForPageLoad
+    else if (/WebUI\.(delay|waitForElementVisible|waitForPageLoad)\(/.test(line)) {
+      action = 'wait';
+      desc   = desc || 'Wait';
+      const dm = line.match(/delay\(\s*(\d+)\s*\)/);
+      value = dm ? dm[1] : '2000';
+      const obj = resolveObject(line, objects);
+      if (obj) { selector = bestSelector(obj); objId = obj.id; }
+    }
+    // callTestCase — note it as a comment step
+    else if (/WebUI\.callTestCase\(/.test(line)) {
+      action = 'custom';
+      desc   = desc || 'Call test case';
+      const tcm = line.match(/findTestCase\(\s*'([^']+)'\s*\)/);
+      value = tcm ? `// ⤵ callTestCase: ${tcm[1]}` : '// callTestCase';
+    }
+    // switchToFrame / switchToDefaultContent
+    else if (/WebUI\.(switchToFrame|switchToDefaultContent)\(/.test(line)) {
+      action = 'custom';
+      desc   = desc || line.match(/WebUI\.(\w+)/)?.[1] || 'Switch frame';
+    }
+    // select (dropdowns)
+    else if (/WebUI\.(selectOptionByLabel|selectOptionByValue|selectOptionByIndex)\(/.test(line)) {
+      action = 'select';
+      desc   = desc || 'Select option';
+      const obj = resolveObject(line, objects);
+      if (obj) { selector = bestSelector(obj); objId = obj.id; }
+      const vm = line.match(/,\s*'([^']+)'\s*[,)]/);
+      value = vm ? vm[1] : '';
+    }
+    // executeJavaScript
+    else if (/WebUI\.executeJavaScript\(/.test(line)) {
+      action = 'js';
+      desc   = desc || 'Execute JavaScript';
+      const jm = line.match(/executeJavaScript\(\s*'([^']+)'/);
+      value = jm ? jm[1] : '';
+    }
+    // Any other WebUI.* call — capture as custom with the method name
+    else if (/WebUI\./.test(line)) {
+      action = 'custom';
+      const mn = line.match(/WebUI\.(\w+)\(/);
+      desc = desc || (mn ? mn[1] : 'Custom step');
+    }
+    else continue;
+
+    steps.push({
+      id: stepId++, action, desc, value,
+      selector: selector || '',
+      status: 'pending',
+      ...(objId ? { objId } : {}),
+    });
+  }
+
+  // Always end with a screenshot step
+  steps.push({
+    id: stepId++, action: 'screenshot',
+    desc: 'Capture final state',
+    value: suiteName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-done',
+    selector: '', status: 'pending',
+  });
+
+  const url = extractBaseUrl([file]);
+  return { id: idx, name: suiteName, url, browser: 'chromium', steps };
+}
+
+// ── Helpers for Groovy parser ────────────────────────────────
+function resolveObject(line, objects) {
+  const m = line.match(/findTestObject\(\s*'([^']+)'\s*\)/);
+  if (!m) return null;
+  return objects.find(o => matchObjName(o, m[1]));
+}
+
+function matchObjName(obj, fullPath) {
+  // fullPath e.g. "LoginDialog/btnManiMenuLogin" or "MenuPage/SidesMenu/lblChuckyChipsKJ"
+  const parts = fullPath.split('/');
+  const leaf  = parts[parts.length - 1];
+  // Match by name (last segment)
+  if (obj.name === leaf) return true;
+  // Fallback: match by page + name
+  const page = parts.slice(0, -1).join(' / ');
+  if (obj.name === leaf && obj.page.includes(parts[0])) return true;
+  return false;
+}
+
+function bestSelector(obj) {
+  // Prefer: aria-label → href → stable CSS → XPath
+  if (obj.aria)  return obj.aria;
+  if (obj.href)  return `a[href="${obj.href}"]`;
+  if (obj.css && obj.css.length < 80 && !obj.css.includes(' > ') && obj.css.split('.').length <= 5) return obj.css;
+  return obj.xpath || obj.basic || obj.primarySelector || '';
+}
+
+function extractBaseUrl(files) {
+  for (const f of files) {
+    const m = (f.content || '').match(/navigateToUrl\(\s*'([^']+)'\s*\)/);
+    if (m) return m[1];
+  }
+  return '';
+}
+
+// ════════════════════════════════════════════════════════════
+//  CUSTOM KEYWORDS PARSER
+// ════════════════════════════════════════════════════════════
+function parseCustomKeywords(file) {
+  const c = file.content || '';
+  const libs = [];
+
+  // Find @Keyword annotated methods
+  const kwRe = /(?:\/\*\*?([\s\S]*?)\*\/)?\s*@Keyword\s*(?:\([^)]*\))?\s*(?:def|public|static)?\s+(\w+)\s*\(([^)]*)\)/g;
+  let m;
+  const keywords = [];
+  let kwId = 100;
+
+  while ((m = kwRe.exec(c)) !== null) {
+    const jsdoc = m[1] || '';
+    const name  = m[2];
+    const params = m[3].split(',')
+      .map(p => p.trim())
+      .filter(Boolean)
+      .map(p => {
+        const parts = p.trim().split(/\s+/);
+        return { name: parts[parts.length-1] || 'param', type: parts[0] || 'String' };
+      });
+
+    // Extract method body (everything between the first { after signature and matching })
+    const bodyStart = c.indexOf('{', m.index + m[0].length);
+    if (bodyStart === -1) continue;
+    let depth = 1, bodyEnd = bodyStart + 1;
+    while (bodyEnd < c.length && depth > 0) {
+      if (c[bodyEnd] === '{') depth++;
+      else if (c[bodyEnd] === '}') depth--;
+      bodyEnd++;
+    }
+    const rawBody = c.slice(bodyStart + 1, bodyEnd - 1).trim();
+    // Convert Groovy body to Playwright TS comment stub
+    const body = `// Converted from Katalon @Keyword: ${name}\n// Original Groovy:\n`
+      + rawBody.split('\n').slice(0,8).map(l=>'// '+l).join('\n')
+      + '\n// TODO: implement in Playwright';
+
+    // Extract @param tags from JSDoc for better descriptions
+    const desc = (jsdoc.match(/@Description\s+([^\n@]+)/) || jsdoc.match(/\*\s+([^@\n]+)/) || [])[1]?.trim() || `Keyword: ${name}`;
+
+    keywords.push({ id: kwId++, name, desc, params, returns: 'void', tags: ['katalon-import'], uses: 0, body });
+  }
+
+  if (keywords.length) {
+    // Group all under one library named after the file
+    const libName = file.name.replace(/.*[\/\\]/, '').replace('.groovy','') || 'CustomKeywords';
+    libs.push({ id: 1, name: libName, pkg: 'com.katalon.' + libName.toLowerCase(), desc: `Imported from Katalon ${libName}.groovy`, keywords });
+  }
+  return libs;
+}
+
+// ════════════════════════════════════════════════════════════
+//  GLBL PROFILE PARSER
+// ════════════════════════════════════════════════════════════
+function parseGlbl(file) {
+  const c    = file.content || '';
+  const name = file.name.replace(/.*[\/\\]([^\/\\]+)\.glbl$/, '$1');
+
+  // Each GlobalVariableEntity has <n> and <initValue>
+  const vars = [];
+  const varRe = /<GlobalVariableEntity>([\s\S]*?)<\/GlobalVariableEntity>/g;
+  let vm;
+  while ((vm = varRe.exec(c)) !== null) {
+    const block = vm[1];
+    const key   = (block.match(/<n>([^<]+)<\/n>/) || [])[1]?.trim();
+    const val   = (block.match(/<initValue>([^<]*)<\/initValue>/) || [])[1]?.trim() || '';
+    if (key) vars.push({ key, value: val });
+  }
+
+  // Fallback: older format uses <n> / <value> pairs
+  if (!vars.length) {
+    const pairRe = /<n>([^<]+)<\/n>[\s\S]*?<value>([^<]*)<\/value>/g;
+    let pm;
+    while ((pm = pairRe.exec(c)) !== null) {
+      const key = pm[1].trim();
+      if (!['description','tag','defaultURL'].includes(key)) vars.push({ key, value: pm[2].trim() });
+    }
+  }
+
+  const colors = { default:'var(--green)', staging:'var(--orange)', production:'var(--red)', prod:'var(--red)', dev:'var(--cyan)', development:'var(--cyan)' };
+  const color  = colors[name.toLowerCase()] || 'var(--purple)';
+  const label  = name.charAt(0).toUpperCase() + name.slice(1);
+
+  return { id: 'env-' + Date.now() + '-' + Math.random().toString(36).slice(2), name: label, url: '', color, vars, desc: `Imported from Katalon profile: ${name}`, active: name.toLowerCase() === 'default' };
+}
+
+// ════════════════════════════════════════════════════════════
+//  CSV DATA FILE PARSER
+// ════════════════════════════════════════════════════════════
+function parseCsvFile(file, idx) {
+  const lines = (file.content || '').trim().split(/\r?\n/).filter(Boolean);
+  if (!lines.length) return { id: idx, name: file.name.replace(/.*[\/\\]/,'').replace(/\.[^.]+$/,''), desc:'Empty', cols:[], rows:[] };
+  const parse = l => l.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+  const cols  = parse(lines[0]);
+  const rows  = lines.slice(1).map(parse);
+  return { id: idx, name: file.name.replace(/.*[\/\\]/,'').replace(/\.[^.]+$/,''), desc: `Imported from ${file.name.replace(/.*[\/\\]/,'')}`, cols, rows };
+}
+
+// ── Show step 3 preview ───────────────────────────────────────
+function showPreview(data) {
+  document.getElementById('importStep2').style.display = 'none';
+  document.getElementById('importStep3').style.display = '';
+  setStep(3);
+
+  const totalKws = data.keywordLibs.reduce((s,l)=>s+l.keywords.length, 0);
+  document.getElementById('ipObjCount').textContent   = data.objects.length;
+  document.getElementById('ipSuiteCount').textContent  = data.suites.length;
+  document.getElementById('ipKwCount').textContent     = totalKws;
+  document.getElementById('ipTableCount').textContent  = data.dataTables?.length||0;
+  document.getElementById('ipWarnCount').textContent   = data.brittle.length;
+
+  if (data.brittle.length) {
+    document.getElementById('importWarnBox').style.display = 'flex';
+    document.getElementById('importWarnMsg').textContent =
+      data.brittle.length + ' selectors have a healscore below '+(prefs.healThresh||50)+
+      ' — they are flagged and will be highlighted in the Object Repository. '+
+      'Affected: '+data.brittle.map(o=>o.name).join(', ');
+  } else {
+    document.getElementById('importWarnBox').style.display = 'none';
+    document.getElementById('importOkBox').style.display = 'flex';
+    document.getElementById('importOkMsg').textContent = 'All '+data.objects.length+' selectors meet the healscore threshold. Project is ready to import.';
+  }
+
+  document.getElementById('impProjName').value = data.projName || '';
+  document.getElementById('impBaseUrl').value  = data.url || '';
+
+  // Build file table rows
+  const rows = [];
+  // Objects grouped by page
+  const pages = [...new Set(data.objects.map(o=>o.page))];
+  pages.forEach(pg => {
+    const objs = data.objects.filter(o=>o.page===pg);
+    rows.push({ name:`[${esc(pg)}] — ${objs.length} objects`, type:'Object Repository folder', status:'📁' });
+    objs.forEach(o => {
+      const score = o.healscore;
+      const col   = score < 40 ? 'var(--red)' : score < (prefs.healThresh||50) ? 'var(--orange)' : 'var(--green)';
+      rows.push({ name: o.name, type: `[${o.selectorMethod}]  ${o.primarySelector.substring(0,50)}${o.primarySelector.length>50?'…':''}`, status:`<span style="color:${col}">● ${score}</span>` });
+    });
+  });
+  // Suites
+  data.suites.forEach(s => rows.push({ name: s.name, type: `Groovy script → ${s.steps.length-1} steps + screenshot`, status: '✅ Suite' }));
+  // Keywords
+  data.keywordLibs.forEach(l => rows.push({ name: l.name, type: `${l.keywords.length} @Keyword method${l.keywords.length===1?'':'s'}`, status: '🔑 Keywords' }));
+  // Profiles
+  data.projEnvs.forEach(e => rows.push({ name: e.name, type: `Execution profile — ${e.vars.length} variable${e.vars.length===1?'':'s'}`, status: '🌐 Env' }));
+  // Data files
+  (data.dataTables||[]).forEach(t => rows.push({ name: t.name, type: `${t.cols.length} cols × ${t.rows.length} rows`, status: '📋 Data' }));
+
+  const tbody = document.getElementById('detectedFilesTable');
+  tbody.innerHTML = rows.slice(0,40).map(r =>
+    `<tr><td class="mono" style="font-size:11px;color:var(--t1)">${r.name}</td><td style="color:var(--t3);font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.type}</td><td>${r.status}</td></tr>`
+  ).join('');
+  if (rows.length > 40) tbody.innerHTML += `<tr><td colspan="3" style="color:var(--t3);text-align:center;font-size:11px">…and ${rows.length-40} more</td></tr>`;
+}
+
+// ── Confirm import ────────────────────────────────────────────
+async function runImport() {
+  if (!parsedData) return;
+  setStep(4);
+  document.getElementById('importStep3').style.display = 'none';
+  document.getElementById('importStep4').style.display = 'flex';
+
+  const name    = document.getElementById('impProjName').value.trim() || parsedData.projName || 'Imported Project';
+  const baseUrl = document.getElementById('impBaseUrl').value.trim();
+  const browser = document.getElementById('impBrowser')?.value || prefs.browser || 'chromium';
+
+  // Apply base URL to all suites if provided
+  if (baseUrl) parsedData.suites.forEach(s => { if (!s.url) s.url = baseUrl; });
+
+  // Standard listeners (Playwright equivalents of Katalon lifecycle)
+  const listeners = [
+    { id:1, event:'beforeSuite', name:'Open Browser & Navigate', enabled:true,
+      body:`// Katalon: WebUI.openBrowser('') + WebUI.navigateToUrl(...)\nawait page.goto('${baseUrl || 'https://your-app.com'}');\nawait page.waitForLoadState('networkidle');` },
+    { id:2, event:'afterSuite',  name:'Cleanup & Screenshot',    enabled:true,
+      body:`// Katalon: WebUI.closeBrowser()\nawait page.screenshot({ path: 'results/final-state.png' });\nconsole.log('[SUITE DONE]');` },
+    { id:3, event:'afterStep',   name:'Heal on Selector Failure', enabled:true,
+      body:`if (error) { console.warn('[HEALER] Trying fallback selector…'); }` },
+    { id:4, event:'onError',     name:'Screenshot on Failure',   enabled:true,
+      body:`await page.screenshot({ path: 'failures/' + Date.now() + '.png' });` },
+  ];
+
+  // Merge imported profile envs with global envs
+  if (parsedData.projEnvs.length) {
+    const existing = loadStore(ENV_KEY, []);
+    const merged = [...existing];
+    parsedData.projEnvs.forEach(pe => {
+      if (!merged.find(e => e.name.toLowerCase() === pe.name.toLowerCase())) merged.push(pe);
+    });
+    saveStore(ENV_KEY, merged);
+    envs = merged;
+  }
+
+  const totalKws = parsedData.keywordLibs.reduce((s,l)=>s+l.keywords.length, 0);
+
+  const proj = {
+    id:       'proj-' + Date.now(),
+    name,
+    source:   'katalon',
+    modified: Date.now(),
+    url:      baseUrl,
+    browser,
+    suites:      parsedData.suites,
+    objRepo:     parsedData.objects,
+    dataTables:  parsedData.dataTables || [],
+    keywordLibs: parsedData.keywordLibs,
+    listeners,
+    envs:    parsedData.projEnvs,
+    brittle: parsedData.brittle.map(o => o.name),
+  };
+
+  projects.push(proj);
+  saveStore(STORE_KEY, projects);
+  setActive(proj.id);
+
+  // Update done screen
+  document.getElementById('importDoneTitle').textContent = '"'+name+'" imported!';
+  document.getElementById('importDoneDesc').textContent  =
+    'Converted from Katalon Studio. '+parsedData.brittle.length+' brittle selector'+(parsedData.brittle.length===1?'':'s')+' flagged for healing.';
+  document.getElementById('doneObjs').textContent   = proj.objRepo.length;
+  document.getElementById('doneSuites').textContent = proj.suites.length;
+  document.getElementById('doneKws').textContent    = totalKws;
+  document.getElementById('doneTables').textContent = proj.dataTables.length;
+
+  toast('"'+name+'" imported successfully','🎉');
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ════════════════════════════════════════════════════════════
+//  ENVIRONMENTS
+// ════════════════════════════════════════════════════════════
+let selectedEnvId = null;
+
+function renderEnvPanel() {
+  const active = envs.find(e => e.active) || envs[0];
+  document.getElementById('envPanelSub').textContent = envs.length + ' environment' + (envs.length===1?'':'s') + ' configured';
+  document.getElementById('envCount').textContent = envs.length;
+
+  // Active slot
+  document.getElementById('envActiveSlot').innerHTML = active ? renderEnvItem(active, true) : '<div style="color:var(--t3);font-size:11px">No active environment</div>';
+
+  // Full list
+  document.getElementById('envList').innerHTML = envs.map(e => renderEnvItem(e, false)).join('');
+
+  // Variables panel
+  if (selectedEnvId) showEnvVars(selectedEnvId);
+}
+
+function renderEnvItem(e, compact) {
+  return `<div class="env-item ${e.active&&!compact?'active-env':''}" onclick="selectEnv('${e.id}')">
+    <div class="env-led" style="background:${e.color||'var(--green)'}"></div>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="env-name-display">${esc(e.name)}</span>
+        ${e.active?'<span class="env-badge">ACTIVE</span>':''}
+      </div>
+      ${e.url?`<div class="env-url">${esc(e.url)}</div>`:''}
+      ${e.desc&&!compact?`<div style="font-size:10px;color:var(--t3);margin-top:2px">${esc(e.desc)}</div>`:''}
+    </div>
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      ${!e.active?`<button class="btn btn-g btn-sm" onclick="event.stopPropagation();setActiveEnv('${e.id}')">Set Active</button>`:''}
+      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();editEnv('${e.id}')">✏️</button>
+    </div>
+  </div>`;
+}
+
+function selectEnv(id) {
+  selectedEnvId = id;
+  showEnvVars(id);
+}
+
+function showEnvVars(id) {
+  const e = envs.find(x=>x.id===id);
+  if (!e) return;
+  const card = document.getElementById('envVarsCard');
+  if (!e.vars || !e.vars.length) {
+    card.innerHTML = `<div class="card-hd">${esc(e.name)} Variables</div><div style="color:var(--t3);font-size:11px;margin-bottom:10px">No variables defined for this environment.</div><button class="btn btn-g btn-sm" onclick="editEnv('${e.id}')">+ Add Variables</button>`;
+    return;
+  }
+  card.innerHTML = `<div class="card-hd">${esc(e.name)} Variables</div>
+    <table class="tbl"><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>
+    ${e.vars.map(v=>`<tr><td class="mono" style="color:var(--yellow)">${esc(v.key)}</td><td class="mono">${esc(v.value)}</td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+function setActiveEnv(id) {
+  envs.forEach(e => e.active = e.id === id);
+  saveStore(ENV_KEY, envs);
+  renderEnvPanel();
+  const e = envs.find(x=>x.id===id);
+  toast('"'+e.name+'" is now active','🌐');
+}
+
+function showEnvModal() {
+  selectedEnvColor = 'var(--green)';
+  document.querySelectorAll('#newEnvModal .color-swatch').forEach((sw,i) => sw.classList.toggle('sel', i===0));
+  ['neeName','neeUrl','neeDesc'].forEach(id => document.getElementById(id).value = '');
+  openModal('newEnvModal');
+  document.getElementById('neeName').focus();
+}
+
+function pickEnvColor(el) {
+  document.querySelectorAll('#newEnvModal .color-swatch').forEach(s => s.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedEnvColor = el.dataset.color;
+}
+
+function createEnv() {
+  const name = document.getElementById('neeName').value.trim();
+  if (!name) { toast('Name required','⚠️'); return; }
+  const e = {
+    id: 'env-' + Date.now(),
+    name,
+    url:   document.getElementById('neeUrl').value.trim(),
+    desc:  document.getElementById('neeDesc').value.trim(),
+    color: selectedEnvColor || 'var(--cyan)',
+    vars:  [],
+    active: false,
+  };
+  envs.push(e);
+  saveStore(ENV_KEY, envs);
+  closeModal('newEnvModal');
+  renderEnvPanel();
+  toast('"'+name+'" added','🌐');
+}
+
+let editEnvVarRows = [];
+
+function editEnv(id) {
+  const e = envs.find(x=>x.id===id);
+  if (!e) return;
+  document.getElementById('editEnvId').value  = id;
+  document.getElementById('editEnvName').value = e.name;
+  document.getElementById('editEnvUrl').value  = e.url||'';
+  document.getElementById('editEnvDesc').value = e.desc||'';
+  editEnvVarRows = (e.vars||[]).map(v=>({...v}));
+  // Set colour swatch
+  document.querySelectorAll('#editEnvColors .color-swatch').forEach(sw => sw.classList.toggle('sel', sw.dataset.color===e.color));
+  renderEditEnvVars();
+  openModal('editEnvModal');
+}
+
+function pickEditEnvColor(el) {
+  document.querySelectorAll('#editEnvColors .color-swatch').forEach(s => s.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function renderEditEnvVars() {
+  document.getElementById('editEnvVarsWrap').innerHTML = editEnvVarRows.map((v,i) => `
+    <div style="display:grid;grid-template-columns:1fr 1fr 28px;gap:6px;margin-bottom:6px">
+      <input class="fi mono" style="font-size:11px" placeholder="KEY" value="${esc(v.key)}" oninput="editEnvVarRows[${i}].key=this.value">
+      <input class="fi mono" style="font-size:11px" placeholder="value" value="${esc(v.value)}" oninput="editEnvVarRows[${i}].value=this.value">
+      <button class="btn btn-d btn-sm" onclick="removeEnvVar(${i})" style="padding:0;width:26px;justify-content:center">✕</button>
+    </div>`).join('');
+}
+
+function addEnvVar()    { editEnvVarRows.push({key:'',value:''}); renderEditEnvVars(); }
+function removeEnvVar(i){ editEnvVarRows.splice(i,1); renderEditEnvVars(); }
+
+function saveEditEnv() {
+  const id   = document.getElementById('editEnvId').value;
+  const e    = envs.find(x=>x.id===id);
+  if (!e) return;
+  const selColor = document.querySelector('#editEnvColors .color-swatch.sel');
+  e.name  = document.getElementById('editEnvName').value.trim() || e.name;
+  e.url   = document.getElementById('editEnvUrl').value.trim();
+  e.desc  = document.getElementById('editEnvDesc').value.trim();
+  e.color = selColor ? selColor.dataset.color : e.color;
+  e.vars  = editEnvVarRows.filter(v => v.key.trim());
+  saveStore(ENV_KEY, envs);
+  closeModal('editEnvModal');
+  renderEnvPanel();
+  toast('"'+e.name+'" saved','💾');
+}
+
+function deleteEnv(id) {
+  const e = envs.find(x=>x.id===id);
+  if (!e || !confirm('Delete environment "'+e.name+'"?')) return;
+  envs = envs.filter(x=>x.id!==id);
+  if (e.active && envs.length) envs[0].active = true;
+  saveStore(ENV_KEY, envs);
+  closeModal('editEnvModal');
+  renderEnvPanel();
+  toast('"'+e.name+'" deleted','🗑');
+}
+
+function saveAllEnvs() {
+  saveStore(ENV_KEY, envs);
+  toast('All environments saved','💾');
+}
+
+// ════════════════════════════════════════════════════════════
+//  PREFERENCES
+// ════════════════════════════════════════════════════════════
+function loadPrefsUI() {
+  document.getElementById('prefPlayArcUrl').value  = prefs.playArcUrl || '';
+  document.getElementById('prefBrowser').value     = prefs.browser || 'chromium';
+  document.getElementById('prefHealThresh').value  = prefs.healThresh ?? 50;
+}
+
+function savePrefs() {
+  prefs.playArcUrl  = document.getElementById('prefPlayArcUrl').value.trim();
+  prefs.browser     = document.getElementById('prefBrowser').value;
+  prefs.healThresh  = parseInt(document.getElementById('prefHealThresh').value)||50;
+  saveStore(PREFS_KEY, prefs);
+  toast('Preferences saved','💾');
+}
+
+function exportAllProjects() {
+  const data = { projects, envs, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'playarc-backup-'+Date.now()+'.json'; a.click();
+  toast('Backup exported','📤');
+}
+
+function importBackup() {
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='.json';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.projects) { projects = [...projects, ...data.projects]; saveStore(STORE_KEY, projects); }
+        if (data.envs)     { envs = data.envs; saveStore(ENV_KEY, envs); }
+        renderProjects(); renderEnvPanel();
+        toast('Backup restored','📥');
+      } catch { toast('Invalid JSON file','⚠️'); }
+    }; r.readAsText(f);
+  }; inp.click();
+}
+
+function clearAllData() {
+  if (!confirm('Delete ALL projects and environments? This cannot be undone.')) return;
+  projects = []; envs = []; activeId = null;
+  [STORE_KEY, ENV_KEY, ACTIVE_KEY, 'playarc_current'].forEach(k => localStorage.removeItem(k));
+  renderProjects(); renderEnvPanel();
+  toast('All data cleared','🗑');
+}
+
+// ════════════════════════════════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════════════════════════════════
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function timeAgo(ts) {
+  if (!ts) return 'never';
+  const s = Math.floor((Date.now()-ts)/1000);
+  if (s<60) return 'just now';
+  if (s<3600) return Math.floor(s/60)+'m ago';
+  if (s<86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+
+// Drag-and-drop on dropzone
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f?.name.endsWith('.zip')) handleZip(f); else toast('Please drop a .zip file','⚠️'); });
+
+// ════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Seed Pizza HQ demo project if no projects exist yet
+  if (!projects.length) {
+    const demo = {
+      id: 'proj-demo-pizzahq',
+      name: 'Pizza HQ',
+      source: 'katalon',
+      modified: Date.now(),
+      suites: [
+        { id:0, name:'Login Validation', url:'https://jovial-dust-09858.pktriot.net/#/', browser:'chromium', steps:[
+          {id:1,action:'navigate',desc:'Open Pizza HQ',value:'https://jovial-dust-09858.pktriot.net/#/',selector:'',status:'pending'},
+          {id:2,action:'click',desc:'Click login icon',value:'',selector:'//div[@id="app"]/div/header/div/div[2]/a[5]/span/i',status:'pending'},
+          {id:3,action:'assert_text',desc:'Verify login dialog',value:'PizzaHQ Members Login',selector:'div.v-toolbar__title',status:'pending'},
+          {id:4,action:'click',desc:'Submit empty login',value:'',selector:'(//button[@type="button"])[3]',status:'pending'},
+          {id:5,action:'assert_text',desc:'Assert error visible',value:'Your login was unsuccessful',selector:'div.v-alert.alertMessage',status:'pending'},
+          {id:6,action:'click',desc:'Dismiss error',value:'',selector:'//div[@id="loginDialog"]//i[text()="cancel"]',status:'pending'},
+          {id:7,action:'click',desc:'Close dialog',value:'',selector:'(//button[@type="button"])[4]',status:'pending'},
+          {id:8,action:'screenshot',desc:'Capture result',value:'login-validation-done',selector:'',status:'pending'},
+        ]},
+        { id:1, name:'Chunky Chips Validation', url:'https://jovial-dust-09858.pktriot.net/#/', browser:'chromium', steps:[
+          {id:1,action:'navigate',desc:'Open Pizza HQ',value:'https://jovial-dust-09858.pktriot.net/#/',selector:'',status:'pending'},
+          {id:2,action:'click',desc:'Click Menu link',value:'',selector:'a[href="#/menu"]',status:'pending'},
+          {id:3,action:'click',desc:'Select Sides tab',value:'',selector:'//div[@role="tab" and contains(.,"Sides")]',status:'pending'},
+          {id:4,action:'assert_text',desc:'Assert kJ = 3273 kJ',value:'3273 kJ',selector:'.kilojoules',status:'pending'},
+          {id:5,action:'assert_text',desc:'Assert price = $9.99',value:'$9.99',selector:'.price',status:'pending'},
+          {id:6,action:'screenshot',desc:'Capture Chunky Chips',value:'chunky-chips-done',selector:'',status:'pending'},
+        ]},
+      ],
+      objRepo: [
+        {id:1,name:'btnManiMenuLogin',page:'LoginDialog',sel:'',aria:'',css:'i.v-icon.notranslate.material-icons.theme--light',xpath:'//div[@id="app"]/div/header/div/div[2]/a[5]/span/i',healscore:52,uses:1},
+        {id:2,name:'btnLogin',page:'LoginDialog',sel:'',aria:'[aria-label="login"]',css:'button.btnPrimary',xpath:'(//button[@type="button"])[3]',healscore:70,uses:1},
+        {id:3,name:'lblWarning',page:'LoginDialog',sel:'',aria:'',css:'div.v-alert.alertMessage',xpath:'//div[@id="loginDialog"]/div/div/div/div/div',healscore:55,uses:2},
+        {id:4,name:'btnCancel',page:'LoginDialog',sel:'',aria:'[aria-label="cancel"]',css:'button.btnSecondary',xpath:'(//button[@type="button"])[4]',healscore:72,uses:1},
+        {id:5,name:'lnkMenu',page:'MenuPage',sel:'',aria:'[aria-label="menu"]',css:'',xpath:'//a[contains(@href,"#/menu")]',healscore:85,uses:1},
+        {id:6,name:'btnSidesFastfood',page:'MenuPage',sel:'',aria:'',css:'',xpath:'//div[@id="app"]/div/main/div/div/div[2]/div/div[2]/div/div[3]',healscore:42,uses:1},
+        {id:7,name:'lblChuckyChipsKJ',page:'MenuPage',sel:'',aria:'',css:'.kilojoules',xpath:'(.//*[normalize-space(.)="Order"])[22]/preceding::p[1]',healscore:35,uses:1},
+        {id:8,name:'lblPriceCChps',page:'MenuPage',sel:'',aria:'',css:'.price',xpath:'(.//*[normalize-space(.)="Order"])[22]/preceding::div[1]',healscore:38,uses:1},
+      ],
+      dataTables:[{id:1,name:'Login Test Data',desc:'Scenarios',cols:['scenario','expected_result'],rows:[['Empty credentials','Error visible'],['Error dismissed','Error hidden']]}],
+      keywordLibs:[],
+      listeners:[],
+      envs:[],
+      brittle:['btnSidesFastfood','lblChuckyChipsKJ','lblPriceCChps'],
+    };
+    projects.push(demo);
+    saveStore(STORE_KEY, projects);
+    activeId = demo.id;
+    saveStore(ACTIVE_KEY, activeId);
+    saveStore('playarc_current', demo);
+  }
+
+  renderProjects();
+  updateActiveLabel();
+  loadPrefsUI();
+});
+</script>
+</body>
+</html>
