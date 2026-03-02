@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PlayArc — Developer Reference v2</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07101C;--bg2:#0C1A2B;--bg3:#112236;--bg4:#162C42;
+  --cyan:#00D4FF;--clo:rgba(0,212,255,.10);
+  --green:#00E5A0;--glo:rgba(0,229,160,.08);
+  --orange:#FF8C42;--olo:rgba(255,140,66,.08);
+  --red:#FF3D6B;--rlo:rgba(255,61,107,.08);
+  --yellow:#FFD166;--ylo:rgba(255,209,102,.08);
+  --purple:#A78BFA;--plo:rgba(167,139,250,.08);
+  --t1:#E4F0FB;--t2:#7A9EBF;--t3:#365470;
+  --b1:rgba(0,212,255,.12);--b2:rgba(255,255,255,.06);--b3:rgba(255,255,255,.03);
+  --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t1);font-family:var(--fb);font-size:13px;line-height:1.6;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--t3);border-radius:4px;}
+.wrapper{display:flex;min-height:100vh;}
+nav{width:248px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--b2);position:sticky;top:0;height:100vh;overflow-y:auto;padding:20px 0;}
+.nav-logo{padding:0 16px 20px;border-bottom:1px solid var(--b2);margin-bottom:12px;}
+.nav-logo .mark{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--t1);}
+.nav-logo .mark em{color:var(--cyan);font-style:normal;}
+.nav-logo .sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.nav-section{padding:4px 16px 2px;font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);margin-top:10px;}
+.nav-item{display:block;padding:6px 16px;font-size:12px;color:var(--t2);text-decoration:none;cursor:pointer;transition:all .12s;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--t1);background:var(--b2);}
+.nav-item.active{color:var(--cyan);border-left-color:var(--cyan);background:var(--clo);}
+main{flex:1;overflow-y:auto;}
+.content{max-width:940px;margin:0 auto;padding:40px 40px 80px;}
+.page-section{display:none;}
+.page-section.active{display:block;}
+h1{font-family:var(--fd);font-size:28px;font-weight:800;color:var(--t1);margin-bottom:6px;}
+h2{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--t1);margin:40px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--b2);}
+h3{font-size:13px;font-weight:700;color:var(--cyan);margin:22px 0 8px;text-transform:uppercase;letter-spacing:.6px;}
+p{color:var(--t2);margin-bottom:12px;line-height:1.7;}
+code{font-family:var(--fm);font-size:11px;background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--cyan);}
+pre{font-family:var(--fm);font-size:11.5px;background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:14px 16px;overflow-x:auto;line-height:1.8;margin-bottom:14px;}
+pre .c{color:var(--t3);}pre .k{color:var(--purple);}pre .s{color:var(--green);}
+pre .n{color:var(--cyan);}pre .m{color:var(--orange);}pre .v{color:var(--yellow);}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;font-family:var(--fm);}
+.get{background:rgba(0,229,160,.15);color:var(--green);}
+.post{background:var(--clo);color:var(--cyan);}
+.put{background:var(--ylo);color:var(--yellow);}
+.del{background:var(--rlo);color:var(--red);}
+.ws{background:var(--plo);color:var(--purple);}
+.tree{font-family:var(--fm);font-size:12px;background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:16px 20px;margin-bottom:20px;line-height:2.1;}
+.tree-line{display:flex;align-items:flex-start;}
+.tree-prefix{color:var(--t3);flex-shrink:0;white-space:pre;}
+.tree-name{color:var(--t1);}
+.tree-name.dir{color:var(--cyan);font-weight:700;}
+.tree-name.gen{color:var(--green);}
+.tree-name.cfg{color:var(--yellow);}
+.tree-name.kw{color:var(--purple);}
+.tree-comment{color:var(--t3);margin-left:auto;padding-left:20px;font-size:10px;white-space:nowrap;}
+.ep{background:var(--bg2);border:1px solid var(--b2);border-radius:7px;margin-bottom:14px;overflow:hidden;}
+.ep-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b2);background:var(--bg3);}
+.ep-path{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--t1);}
+.ep-desc{font-size:11px;color:var(--t2);}
+.ep-body{padding:12px 14px;}
+.ep-section{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);margin:10px 0 5px;}
+.ws-event{display:flex;gap:12px;padding:8px 10px;border-radius:5px;border:1px solid var(--b2);background:var(--bg3);margin-bottom:6px;align-items:flex-start;}
+.ws-type{font-family:var(--fm);font-size:10px;font-weight:700;color:var(--purple);width:84px;flex-shrink:0;padding-top:1px;}
+.ws-when{font-size:10px;color:var(--t3);width:148px;flex-shrink:0;}
+.ws-payload{font-family:var(--fm);font-size:10px;color:var(--t2);flex:1;}
+.map-table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+.map-table th{text-align:left;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);padding:8px 12px;border-bottom:2px solid var(--b2);}
+.map-table td{padding:8px 12px;font-size:12px;color:var(--t2);border-bottom:1px solid var(--b3);vertical-align:top;}
+.map-table tr:hover td{background:var(--b2);}
+.map-table .kat{color:var(--orange);}
+.map-table .pw{color:var(--cyan);}
+.map-table .arrow{color:var(--t3);text-align:center;}
+.callout{padding:12px 14px;border-radius:6px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;}
+.callout.info{background:var(--clo);border:1px solid var(--b1);}
+.callout.warn{background:var(--ylo);border:1px solid rgba(255,209,102,.2);}
+.callout.tip{background:var(--glo);border:1px solid rgba(0,229,160,.15);}
+.callout.note{background:var(--plo);border:1px solid rgba(167,139,250,.2);}
+.callout-ic{font-size:16px;flex-shrink:0;line-height:1.4;}
+.callout-body{font-size:12px;color:var(--t2);line-height:1.6;}
+.callout-body strong{color:var(--t1);}
+.page-header{margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--b2);}
+.page-tag{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;}
+.page-sub{font-size:13px;color:var(--t2);margin-top:4px;}
+.step-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;font-family:var(--fm);margin-right:4px;}
+.st-nav{background:rgba(27,108,168,.25);color:#7EC8FF;}
+.st-click{background:var(--glo);color:var(--green);}
+.st-fill{background:var(--ylo);color:var(--yellow);}
+.st-assert{background:var(--olo);color:var(--orange);}
+.st-wait{background:var(--b2);color:var(--t2);}
+.st-shot{background:var(--clo);color:var(--cyan);}
+.st-js{background:var(--plo);color:var(--purple);}
+.st-kw{background:var(--rlo);color:var(--red);}
+.dl-link{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--b2);border-radius:7px;text-decoration:none;transition:border-color .15s;margin-bottom:8px;}
+.dl-link:hover{border-color:var(--cyan);}
+ul.body-list{color:var(--t2);font-size:12px;line-height:1.9;padding-left:20px;margin-bottom:14px;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- ── NAV ─────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <div class="mark">Play<em>Arc</em></div>
+    <div class="sub">Developer Reference · v2.0</div>
+  </div>
+  <div class="nav-section">Architecture</div>
+  <a class="nav-item active" onclick="show('overview')">System Overview</a>
+  <a class="nav-item" onclick="show('apps')">Two-App Architecture</a>
+  <a class="nav-item" onclick="show('storage')">Data Model &amp; Storage</a>
+  <a class="nav-item" onclick="show('filestructure')">Generated File Structure</a>
+  <div class="nav-section">PlayArc UI</div>
+  <a class="nav-item" onclick="show('ui-pages')">Pages &amp; Navigation</a>
+  <a class="nav-item" onclick="show('ui-builder')">Builder &amp; Steps</a>
+  <a class="nav-item" onclick="show('ui-runner')">Runner &amp; Execution</a>
+  <a class="nav-item" onclick="show('ui-environments')">Environments</a>
+  <div class="nav-section">Project Manager</div>
+  <a class="nav-item" onclick="show('pm-overview')">PM Overview</a>
+  <a class="nav-item" onclick="show('pm-import')">Katalon Import Engine</a>
+  <a class="nav-item" onclick="show('pm-envs')">Environment Manager</a>
+  <div class="nav-section">Backend API</div>
+  <a class="nav-item" onclick="show('api-overview')">API Overview</a>
+  <a class="nav-item" onclick="show('api-suites')">Suites &amp; Runs</a>
+  <a class="nav-item" onclick="show('api-objects')">Object Repository</a>
+  <a class="nav-item" onclick="show('api-tables')">Data Tables</a>
+  <a class="nav-item" onclick="show('api-heal')">Self-Heal &amp; Inspect</a>
+  <a class="nav-item" onclick="show('websocket')">WebSocket Protocol</a>
+  <div class="nav-section">Reference</div>
+  <a class="nav-item" onclick="show('katalon')">Katalon → Playwright Map</a>
+  <a class="nav-item" onclick="show('codegen')">Code Generation</a>
+  <a class="nav-item" onclick="show('quickstart')">Quick Start</a>
+</nav>
+
+<!-- ── MAIN ────────────────────────────────────────────────── -->
+<main><div class="content">
+
+
+<!-- ══════════════════════════════════════════════════════════
+     OVERVIEW
+══════════════════════════════════════════════════════════ -->
+<div class="page-section active" id="sec-overview">
+  <div class="page-header">
+    <div class="page-tag">Architecture</div>
+    <h1>System Overview</h1>
+    <p class="page-sub">How PlayArc, Project Manager, the REST API, and the Playwright runner connect</p>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-ic">💡</div>
+    <div class="callout-body"><strong>What is PlayArc?</strong> A browser-based automation testing platform. It provides a visual UI to build, manage, and run Playwright test suites — without writing code. It imports existing Katalon Studio projects and executes them against any environment.</div>
+  </div>
+
+  <h2>High-Level Architecture</h2>
+  <pre><span class="c">┌──────────────────────────────┐    ┌──────────────────────────────┐
+│  ProjectManager.html  │    │       PlayWriteDemo.html        │
+│                              │    │                               │
+│  • Create / switch projects  │    │  • Dashboard  · Builder       │
+│  • Import Katalon ZIP files  │◄──►│  • Object Repo  · Data Tables │
+│  • Manage environments       │    │  • Keywords · Listeners       │
+│  • All state in localStorage │    │  • Runner  · Reports          │
+└──────────────┬───────────────┘    └───────────┬───────────────────┘
+               │      localStorage (shared keys) │
+               └─────────────────────────────────┘
+                                  │
+                       REST  +  WebSocket
+                                  │
+                ┌─────────────────▼──────────────────┐
+                │        server.js  (Node 18+)         │
+                │   Express 4 · ws · better-sqlite3    │
+                └─────────────────┬──────────────────┘
+                                  │
+                ┌─────────────────▼──────────────────┐
+                │    npx playwright test *.spec.ts     │
+                │   Chromium · Firefox · WebKit        │
+                └────────────────────────────────────┘</span></pre>
+
+  <h2>Run Lifecycle</h2>
+  <pre><span class="c">Phase 1 — GENERATE  (server, synchronous)</span>
+  Write keyword library .ts files from DB
+  Write objectRepo.ts helper from DB
+  Write fixtures.ts listener file from DB
+  Generate SuiteName-runId.spec.ts
+
+<span class="c">Phase 2 — EXECUTE   (child process, async)</span>
+  spawn('npx', ['playwright', 'test', specPath, '--reporter=json'])
+  Parse stdout events → broadcast() to all WebSocket clients
+  On selector failure → self-heal via fallback chain
+
+<span class="c">Phase 3 — REPORT    (server, on process exit)</span>
+  Parse results.json from Playwright output
+  UPDATE runs SET status, passed, failed, duration
+  Broadcast 'complete' event to UI</pre>
+
+  <h2>Key Design Decisions</h2>
+  <table class="map-table">
+    <thead><tr><th>Decision</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>Two separate HTML files</td><td>Project Manager handles project lifecycle; PlayArc handles execution. Each file is smaller and loads faster.</td></tr>
+      <tr><td>localStorage as project store</td><td>Zero server dependency for project metadata. Works offline. Projects and environments persist across browser sessions without a database.</td></tr>
+      <tr><td>202 Accepted on POST /run</td><td>Runs are async — respond immediately, stream progress via WebSocket. UI never polls.</td></tr>
+      <tr><td>SQLite for run history</td><td>Zero config, file-based. Swap to Postgres by changing the DB layer only.</td></tr>
+      <tr><td>Spec files written to disk</td><td>Playwright requires real .ts files. Also gives developers transparent, readable generated output they can version-control.</td></tr>
+      <tr><td>Healscore at import time</td><td>Brittle selectors are flagged before the first run so developers fix them proactively, not reactively after CI failures.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     TWO-APP ARCHITECTURE
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-apps">
+  <div class="page-header">
+    <div class="page-tag">Architecture</div>
+    <h1>Two-App Architecture</h1>
+    <p class="page-sub">How PlayWriteDemo.html and ProjectManager.html work together via localStorage</p>
+  </div>
+
+  <h2>PlayWriteDemo.html — The Execution UI</h2>
+  <p>The primary test execution interface. Contains the Builder, Object Repository, Keyword Library, Listeners, Runner, and Reports. On startup it reads the active project from <code>localStorage</code> and hydrates all APP state. Users can also reload manually with the <strong>🔄 Reload Project</strong> button in the sidebar without a page refresh.</p>
+
+  <h3>Startup Sequence</h3>
+  <pre><span class="c">window.addEventListener('load', () => {</span>
+  <span class="c">// 1. Hydrate from Project Manager's active project</span>
+  <span class="k">const</span> p = JSON.parse(localStorage.getItem(<span class="s">'playarc_current'</span>));
+  <span class="k">if</span> (p) {
+    <span class="k">if</span> (p.suites?.length)      APP.suites      = p.suites;
+    <span class="k">if</span> (p.objRepo?.length)     APP.objRepo     = p.objRepo;
+    <span class="k">if</span> (p.dataTables?.length)  APP.dataTables  = p.dataTables;
+    <span class="k">if</span> (p.keywordLibs?.length) APP.keywordLibs = p.keywordLibs;
+    <span class="k">if</span> (p.listeners?.length)   APP.listeners   = p.listeners;
+    <span class="c">// update topbar project name and logo</span>
+  }
+  <span class="c">// 2. Sync environment names + LED colours from Project Manager</span>
+  syncEnvUI();
+  <span class="c">// 3. Normal init</span>
+  loadSuite(0); refreshDashboard(); updateCounts();
+});</pre>
+
+  <h3>Sidebar Integration Points</h3>
+  <p>The sidebar bottom section exposes three integration controls:</p>
+  <ul class="body-list">
+    <li><strong>Active Project pill</strong> — shows the current project name (cyan), updates whenever <code>loadProjectFromStorage()</code> is called</li>
+    <li><strong>📁 Project Manager ↗</strong> — opens <code>ProjectManager.html</code> in a new tab</li>
+    <li><strong>🔄 Reload Project</strong> — re-reads <code>playarc_current</code> and live-updates all APP state and rendered pages without a page refresh</li>
+  </ul>
+
+  <h2>ProjectManager.html — The Manager</h2>
+  <p>Handles everything before a test can run: creating projects, importing from Katalon, switching between projects, and configuring environments. Has no connection to the backend server — it is purely a localStorage management tool.</p>
+
+  <h3>Project Activation Flow</h3>
+  <pre><span class="c">// setActive(projectId) in Project Manager:</span>
+localStorage.setItem(<span class="s">'playarc_active_project'</span>, projectId);
+localStorage.setItem(<span class="s">'playarc_current'</span>, JSON.stringify(fullProjectObject));
+<span class="c">// PlayArcDemo reads 'playarc_current' on next load or Reload click</span></pre>
+
+  <h2>Shared localStorage Keys</h2>
+  <table class="map-table">
+    <thead><tr><th>Key</th><th>Written by</th><th>Read by</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td><code>playarc_projects</code></td><td>Project Manager</td><td>Project Manager</td><td>Array of all project objects</td></tr>
+      <tr><td><code>playarc_active_project</code></td><td>Project Manager</td><td>Project Manager</td><td>ID string of currently active project</td></tr>
+      <tr><td><code>playarc_current</code></td><td>Project Manager (on activation)</td><td>PlayArc (startup + reload)</td><td>Full project object: suites, objRepo, dataTables, keywordLibs, listeners</td></tr>
+      <tr><td><code>playarc_envs</code></td><td>Project Manager (Env panel)</td><td>PlayArc (syncEnvUI + cycleEnv)</td><td>Array of environment objects with name, url, color, vars</td></tr>
+      <tr><td><code>playarc_prefs</code></td><td>Project Manager (Settings)</td><td>Project Manager</td><td>playArcUrl, default browser, healThresh</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     DATA MODEL & STORAGE
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-storage">
+  <div class="page-header">
+    <div class="page-tag">Architecture</div>
+    <h1>Data Model &amp; Storage</h1>
+    <p class="page-sub">The shape of every object in the system</p>
+  </div>
+
+  <h2>Project</h2>
+  <pre>{
+  id:          <span class="s">"proj-1709123456789"</span>,     <span class="c">// "proj-" + Date.now()</span>
+  name:        <span class="s">"Pizza HQ"</span>,
+  source:      <span class="s">"katalon"</span> | <span class="s">"manual"</span>,   <span class="c">// import origin</span>
+  modified:    <span class="m">1709123456789</span>,             <span class="c">// timestamp ms</span>
+  url:         <span class="s">"https://staging.app.com"</span>,<span class="c">// base URL</span>
+  browser:     <span class="s">"chromium"</span>,
+  suites:      Suite[],
+  objRepo:     RepoObject[],
+  dataTables:  DataTable[],
+  keywordLibs: KeywordLib[],
+  listeners:   Listener[],
+  envs:        EnvProfile[],              <span class="c">// profiles imported from .glbl files</span>
+  brittle:     <span class="n">string</span>[],                 <span class="c">// object names with healscore &lt; threshold</span>
+}</pre>
+
+  <h2>Suite &amp; Steps</h2>
+  <pre>{
+  id:      <span class="m">0</span>,
+  name:    <span class="s">"Login Validation"</span>,
+  url:     <span class="s">"https://jovial-dust-09858.pktriot.net/#/"</span>,
+  browser: <span class="s">"chromium"</span>,
+  steps: [{
+    id:       <span class="m">1</span>,
+    action:   <span class="s">"navigate"</span>,          <span class="c">// see Step Actions table</span>
+    desc:     <span class="s">"Open Pizza HQ"</span>,
+    value:    <span class="s">"https://..."</span>,        <span class="c">// URL / text / expected / ms / JS</span>
+    selector: <span class="s">""</span>,                  <span class="c">// CSS, XPath, aria-label, or data-testid</span>
+    status:   <span class="s">"pending"</span>,           <span class="c">// "pending" | "pass" | "fail"</span>
+    objId:    <span class="m">3</span>,                   <span class="c">// optional link to objRepo entry</span>
+    kwId:     <span class="m">101</span>,                 <span class="c">// optional — when action === "keyword"</span>
+  }]
+}</pre>
+
+  <h3>Step Actions</h3>
+  <table class="map-table">
+    <thead><tr><th>Action</th><th>Playwright equivalent</th><th>value field</th></tr></thead>
+    <tbody>
+      <tr><td><span class="step-tag st-nav">navigate</span></td><td><code>page.goto(value)</code></td><td>Full URL</td></tr>
+      <tr><td><span class="step-tag st-click">click</span></td><td><code>page.click(selector)</code></td><td>—</td></tr>
+      <tr><td><span class="step-tag st-fill">fill</span></td><td><code>page.fill(selector, value)</code></td><td>Text to type; supports <code>{{col}}</code></td></tr>
+      <tr><td><span class="step-tag st-assert">assert_text</span></td><td><code>expect(locator).toContainText(value)</code></td><td>Expected text; <code>!selector</code> prefix = not-visible assert</td></tr>
+      <tr><td><span class="step-tag st-wait">wait</span></td><td><code>page.waitForTimeout(value)</code></td><td>Milliseconds</td></tr>
+      <tr><td><span class="step-tag st-shot">screenshot</span></td><td><code>page.screenshot({ path })</code></td><td>File name stem</td></tr>
+      <tr><td><span class="step-tag st-js">js</span></td><td><code>page.evaluate(value)</code></td><td>JS expression string</td></tr>
+      <tr><td><span class="step-tag" style="background:var(--ylo);color:var(--yellow)">select</span></td><td><code>page.selectOption(selector, value)</code></td><td>Option label/value</td></tr>
+      <tr><td><span class="step-tag" style="background:var(--glo);color:var(--green)">hover</span></td><td><code>page.hover(selector)</code></td><td>—</td></tr>
+      <tr><td><span class="step-tag st-kw">keyword</span></td><td><code>await kw.methodName(params)</code></td><td>JSON params object</td></tr>
+      <tr><td><span class="step-tag" style="background:var(--b2);color:var(--t2)">custom</span></td><td>Raw Playwright JS / comment stub</td><td>Freeform</td></tr>
+    </tbody>
+  </table>
+
+  <h2>RepoObject (Object Repository Entry)</h2>
+  <pre>{
+  id:              <span class="m">1</span>,
+  name:            <span class="s">"btnManiMenuLogin"</span>,
+  page:            <span class="s">"LoginDialog"</span>,           <span class="c">// folder in Katalon Object Repo</span>
+  selectorMethod:  <span class="s">"BASIC"</span>,                 <span class="c">// original Katalon selectorMethod</span>
+  sel:             <span class="s">""</span>,                       <span class="c">// data-testid (priority 1)</span>
+  aria:            <span class="s">'[aria-label="login"]'</span>,   <span class="c">// aria-label  (priority 2)</span>
+  css:             <span class="s">"button.btnPrimary"</span>,      <span class="c">// CSS selector (priority 3)</span>
+  xpath:           <span class="s">"(//button[@type='button'])[3]"</span>, <span class="c">// XPath (priority 4)</span>
+  basic:           <span class="s">"(.//*[normalize-space...)"</span>, <span class="c">// original BASIC selector</span>
+  href:            <span class="s">"#/menu"</span>,                <span class="c">// href attr if present</span>
+  textVal:         <span class="s">"Login"</span>,                 <span class="c">// text content property</span>
+  primarySelector: <span class="s">"(//button)[3]"</span>,         <span class="c">// which selector Katalon used</span>
+  healscore:       <span class="m">70</span>,                      <span class="c">// 0–95, higher = more stable</span>
+  uses:            <span class="m">3</span>,                       <span class="c">// steps referencing this object</span>
+}</pre>
+
+  <h2>DataTable</h2>
+  <pre>{
+  id:   <span class="m">1</span>,
+  name: <span class="s">"Login Test Data"</span>,
+  desc: <span class="s">"Scenarios for login flow"</span>,
+  cols: [<span class="s">"scenario"</span>, <span class="s">"expected_result"</span>],
+  rows: [[<span class="s">"Empty credentials"</span>, <span class="s">"Error visible"</span>]]
+}</pre>
+
+  <h2>KeywordLib &amp; Keyword</h2>
+  <pre>{
+  id:   <span class="m">1</span>,
+  name: <span class="s">"PizzaHQKeywords"</span>,
+  pkg:  <span class="s">"com.pizzahq.common"</span>,
+  desc: <span class="s">"Reusable actions for PizzaHQ"</span>,
+  keywords: [{
+    id:      <span class="m">101</span>,
+    name:    <span class="s">"openApp"</span>,
+    desc:    <span class="s">"Navigate to app and wait for load"</span>,
+    params:  [{ name: <span class="s">"url"</span>, type: <span class="s">"string"</span> }],
+    returns: <span class="s">"void"</span>,
+    tags:    [<span class="s">"navigation"</span>, <span class="s">"setup"</span>],
+    uses:    <span class="m">2</span>,
+    body:    <span class="s">"await page.goto(url);\nawait page.waitForLoadState('networkidle');"</span>
+  }]
+}</pre>
+
+  <h2>Listener</h2>
+  <pre>{
+  id:      <span class="m">1</span>,
+  event:   <span class="s">"beforeSuite"</span>,  <span class="c">// beforeSuite|afterSuite|beforeStep|afterStep|onError</span>
+  name:    <span class="s">"Open Browser &amp; Navigate"</span>,
+  enabled: <span class="k">true</span>,
+  body:    <span class="s">"await page.goto('https://...');\nawait page.waitForLoadState('networkidle');"</span>
+}</pre>
+
+  <h2>Environment</h2>
+  <pre>{
+  id:     <span class="s">"env-1709123456789-abc"</span>,
+  name:   <span class="s">"Staging"</span>,
+  url:    <span class="s">"https://staging.app.com"</span>,
+  color:  <span class="s">"var(--orange)"</span>,         <span class="c">// CSS variable — drives topbar LED colour</span>
+  desc:   <span class="s">"Pre-release environment"</span>,
+  vars:   [{ key: <span class="s">"API_KEY"</span>, value: <span class="s">"abc123"</span> }],
+  active: <span class="k">false</span>
+}</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     GENERATED FILE STRUCTURE
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-filestructure">
+  <div class="page-header">
+    <div class="page-tag">Architecture</div>
+    <h1>Generated File Structure</h1>
+    <p class="page-sub">What the server writes to disk before every Playwright run</p>
+  </div>
+
+  <div class="tree">
+    <div class="tree-line"><span class="tree-prefix"></span><span class="tree-name dir">playarc-server/</span></div>
+    <div class="tree-line"><span class="tree-prefix">├─ </span><span class="tree-name cfg">server.js</span><span class="tree-comment">entry point — node server.js</span></div>
+    <div class="tree-line"><span class="tree-prefix">├─ </span><span class="tree-name cfg">package.json</span><span class="tree-comment">express · ws · better-sqlite3 · @playwright/test</span></div>
+    <div class="tree-line"><span class="tree-prefix">├─ </span><span class="tree-name cfg">playarc.db</span><span class="tree-comment">SQLite — auto-created on first run</span></div>
+    <div class="tree-line"><span class="tree-prefix">├─ </span><span class="tree-name cfg">playwright.config.ts</span><span class="tree-comment">browser config, timeouts, reporters</span></div>
+    <div class="tree-line"><span class="tree-prefix">│</span></div>
+    <div class="tree-line"><span class="tree-prefix">├─ </span><span class="tree-name dir">generated-tests/</span><span class="tree-comment">all output written here per-run</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  ├─ </span><span class="tree-name dir">specs/</span><span class="tree-comment">one .spec.ts per run</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  │  </span><span class="tree-name gen">Login-Validation-run_a3f2b8.spec.ts</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  │  </span><span class="tree-name gen">Chunky-Chips-Validation-run_9b2c14.spec.ts</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  ├─ </span><span class="tree-name dir">keywords/</span><span class="tree-comment">one TypeScript class per KeywordLib</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  │  </span><span class="tree-name kw">PizzaHQKeywords.ts</span><span class="tree-comment">com.pizzahq.common — 14 methods</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  │  </span><span class="tree-name kw">CustomKeywords.ts</span><span class="tree-comment">imported from Katalon Libs/CustomKeywords.groovy</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  └─ </span><span class="tree-name dir">helpers/</span></div>
+    <div class="tree-line"><span class="tree-prefix">│     </span><span class="tree-name gen">objectRepo.ts</span><span class="tree-comment">obj(page,'Page/name') → Playwright Locator</span></div>
+    <div class="tree-line"><span class="tree-prefix">│     </span><span class="tree-name gen">fixtures.ts</span><span class="tree-comment">listeners as test.extend() fixtures</span></div>
+    <div class="tree-line"><span class="tree-prefix">│</span></div>
+    <div class="tree-line"><span class="tree-prefix">├─ </span><span class="tree-name dir">test-results/run_a3f2b8/</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  </span><span class="tree-name gen">results.json</span><span class="tree-comment">parsed after run completes</span></div>
+    <div class="tree-line"><span class="tree-prefix">│  </span><span class="tree-name gen">trace.zip</span><span class="tree-comment">Playwright trace viewer file</span></div>
+    <div class="tree-line"><span class="tree-prefix">└─ </span><span class="tree-name dir">screenshots/run_a3f2b8/</span><span class="tree-comment">served statically at /screenshots/*</span></div>
+    <div class="tree-line"><span class="tree-prefix">   </span><span class="tree-name gen">login-validation-done.png</span></div>
+  </div>
+
+  <h2>Example Generated Spec</h2>
+  <pre><span class="c">// generated-tests/specs/Login-Validation-run_a3f2b8.spec.ts</span>
+<span class="k">import</span> { test, expect } <span class="k">from</span> <span class="s">'@playwright/test'</span>;
+<span class="k">import</span> { obj } <span class="k">from</span> <span class="s">'../helpers/objectRepo'</span>;
+<span class="k">import</span> { PizzaHQKeywords } <span class="k">from</span> <span class="s">'../keywords/PizzaHQKeywords'</span>;
+
+test.describe(<span class="s">'Login Validation'</span>, () =&gt; {
+  test(<span class="s">'Login Validation'</span>, <span class="k">async</span> ({ page }) =&gt; {
+    <span class="k">const</span> kw = <span class="k">new</span> <span class="n">PizzaHQKeywords</span>(page);
+
+    <span class="c">// Step 1 navigate — from Katalon: WebUI.navigateToUrl(...)</span>
+    <span class="k">await</span> page.goto(<span class="s">'https://jovial-dust-09858.pktriot.net/#/'</span>);
+
+    <span class="c">// Step 2 click — objId:1 btnManiMenuLogin [BASIC selector]</span>
+    <span class="k">await</span> page.locator(<span class="s">'//div[@id="app"]/div/header/div/div[2]/a[5]/span/i'</span>).click();
+
+    <span class="c">// Step 3 assert_text — objId:2 lblPizzaHQ Members Login</span>
+    <span class="k">await</span> expect(page.locator(<span class="s">'div.v-toolbar__title'</span>))
+      .toContainText(<span class="s">'PizzaHQ Members Login'</span>);
+
+    <span class="c">// Step 9 screenshot</span>
+    <span class="k">await</span> page.screenshot({
+      path: <span class="s">'screenshots/run_a3f2b8/login-validation-done.png'</span>
+    });
+  });
+});</pre>
+
+  <h2>Generated objectRepo.ts</h2>
+  <pre><span class="c">// Selector priority: data-testid → aria-label → css → xpath</span>
+<span class="k">const</span> REPO = {
+  <span class="s">'LoginDialog/btnLogin'</span>: {
+    sel: <span class="s">''</span>, aria: <span class="s">'[aria-label="login"]'</span>,
+    css: <span class="s">'button.btnPrimary'</span>,
+    xpath: <span class="s">"(//button[@type='button'])[3]"</span>,
+    healscore: <span class="m">70</span>
+  },
+  <span class="s">'MenuPage/SidesMenu/lnkMenu'</span>: {
+    sel: <span class="s">''</span>, aria: <span class="s">'[aria-label="menu"]'</span>,
+    css: <span class="s">''</span>,
+    xpath: <span class="s">"//div[@id='app']/div/header/div/div[2]/a[2]"</span>,
+    healscore: <span class="m">68</span>
+  }
+};
+
+<span class="k">export function</span> obj(page: Page, key: <span class="n">string</span>) {
+  <span class="k">const</span> e = REPO[key];
+  <span class="k">if</span> (!e) <span class="k">throw new</span> Error(<span class="s">`Object not found: ${key}`</span>);
+  <span class="k">if</span> (e.sel)  <span class="k">return</span> page.locator(e.sel);   <span class="c">// 1: data-testid</span>
+  <span class="k">if</span> (e.aria) <span class="k">return</span> page.locator(e.aria);  <span class="c">// 2: aria-label</span>
+  <span class="k">if</span> (e.css)  <span class="k">return</span> page.locator(e.css);   <span class="c">// 3: CSS</span>
+  <span class="k">return</span> page.locator(e.xpath);              <span class="c">// 4: XPath</span>
+}</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     UI PAGES
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-ui-pages">
+  <div class="page-header">
+    <div class="page-tag">PlayArc UI</div>
+    <h1>Pages &amp; Navigation</h1>
+    <p class="page-sub">Every page in PlayWriteDemo.html and what lives there</p>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-ic">💡</div>
+    <div class="callout-body">Navigation is handled by <code>switchPage(id)</code>. Clicking either a top tab (<code>.ntab</code>) or a sidebar item (<code>.sbi</code>) activates both simultaneously. The active page DOM element is <code>div#page-{id}</code>.</div>
+  </div>
+
+  <table class="map-table">
+    <thead><tr><th>Page ID</th><th>Tab name</th><th>What it contains</th></tr></thead>
+    <tbody>
+      <tr><td><code>dashboard</code></td><td>📊 Dashboard</td><td>Run history bar chart, pass/fail donut, suite health bars, activity feed, stat cards (objects, data rows, heals, brittle selectors)</td></tr>
+      <tr><td><code>builder</code></td><td>🔧 Builder</td><td>Suite selector dropdown, drag-and-drop step list, step detail editor panel, Object Repo quick-reference sidebar, live Playwright code preview</td></tr>
+      <tr><td><code>inspector</code></td><td>🔍 Inspector</td><td>URL bar to load a live page, element picker mode toggle, captured selector display, quick-create object shortcut</td></tr>
+      <tr><td><code>objrepo</code></td><td>🗄 Objects</td><td>Searchable object list grouped by page folder, healscore badge per object, full four-selector editor (sel / aria / css / xpath)</td></tr>
+      <tr><td><code>datatables</code></td><td>📋 Data Tables</td><td>Table list, inline cell editor, column manager, CSV import/export, <code>{{token}}</code> binding reference panel</td></tr>
+      <tr><td><code>keywords</code></td><td>🔑 Keywords</td><td>Package/library list, keyword search, function signature display, editable body textarea, Playwright import statement auto-generation</td></tr>
+      <tr><td><code>listeners</code></td><td>🎣 Listeners</td><td>Five lifecycle hooks (beforeSuite / afterSuite / beforeStep / afterStep / onError), enable/disable toggle, body editor, generated fixtures.ts preview</td></tr>
+      <tr><td><code>runner</code></td><td>▶ Runner</td><td>Suite + browser selector, data table binding, headless toggle, real-time step progress list, streaming log panel, stop button, live run timer</td></tr>
+      <tr><td><code>reports</code></td><td>📈 Reports</td><td>Aggregate pass rate donut, trend bar chart, full run history table with browser / duration / data-table columns, Allure export button</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Sidebar Sections</h2>
+  <table class="map-table">
+    <thead><tr><th>Group</th><th>Items</th></tr></thead>
+    <tbody>
+      <tr><td>Project</td><td>Dashboard · Builder · Live Inspector · Object Repo · Data Tables</td></tr>
+      <tr><td>Execution</td><td>Keywords · Listeners · Runner · Schedules (stub) · Queue (stub)</td></tr>
+      <tr><td>Analytics</td><td>Reports · Flaky Tests (stub) · Self-Healed</td></tr>
+      <tr><td>Integrations</td><td>GitHub Actions (stub) · Jira (stub) · Slack (stub)</td></tr>
+      <tr><td>Bottom</td><td>Active project name pill · 📁 Project Manager ↗ link · 🔄 Reload Project · Settings</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     UI BUILDER
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-ui-builder">
+  <div class="page-header">
+    <div class="page-tag">PlayArc UI</div>
+    <h1>Builder &amp; Steps</h1>
+    <p class="page-sub">How test suites are constructed and edited in PlayArcDemo</p>
+  </div>
+
+  <h2>Suite Operations</h2>
+  <p>Suites are stored in <code>APP.suites[]</code>. The active index is <code>APP.suiteIdx</code>. <code>loadSuite(idx)</code> renders the step list and updates the detail panel and the Runner sidebar. New suites are created via <strong>+ Suite</strong> in the topbar or imported from the Project Manager.</p>
+
+  <h2>Step Editing</h2>
+  <p>Steps are drag-and-drop reorderable via HTML5 drag events (<code>APP.dragSrc</code> tracks the dragged index). Each step card shows a coloured action tag, description, and status dot. Selecting a step populates the detail editor on the right — action type, description, value, and selector fields. The <strong>Playwright Preview</strong> pane below the editor live-renders the exact Playwright line that would be generated for that step.</p>
+
+  <h2>Object Repo Quick Reference</h2>
+  <p>The Builder's right sidebar shows a grouped object browser. Clicking an object inserts its best selector into the current step's selector field and sets <code>step.objId</code>. Objects flagged brittle show an orange <code>⚠ healscore</code> badge so developers can choose a more stable selector before running.</p>
+
+  <h2>Data Binding in Steps</h2>
+  <p>Any step's <strong>value</strong> field may contain <code>{{columnName}}</code> tokens. At runtime the runner replaces them with values from the bound data table row. The Builder shows a live preview substitution when a data table is selected in the Runner.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     UI RUNNER
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-ui-runner">
+  <div class="page-header">
+    <div class="page-tag">PlayArc UI</div>
+    <h1>Runner &amp; Execution</h1>
+    <p class="page-sub">How the UI executes suites and streams live results</p>
+  </div>
+
+  <h2>execRun() flow</h2>
+  <pre><span class="c">1.  POST /suites/:id/run  →  202 { runId }</span>
+<span class="c">2.  Open WebSocket: ws://localhost:4000/ws?runId=…</span>
+<span class="c">3.  For each step (simulated in demo mode):</span>
+    renderStepProg(suite, i)    <span class="c">// update step list dot colours</span>
+    updateBM(step, 'run')       <span class="c">// update browser mockup panel</span>
+    addLog('STEP', description) <span class="c">// append to streaming log panel</span>
+<span class="c">4.  On brittle selector: POST /heal → try fallback chain</span>
+<span class="c">5.  On complete: push run to APP.runHistory, refreshDashboard()</span></pre>
+
+  <h2>Self-Heal in the Runner</h2>
+  <p>If a step's selector fails, the runner calls <code>POST /heal</code> with the primary selector and an array of fallbacks ordered <code>aria → css → xpath</code>. The server tries each fallback on the live page. On success it broadcasts a <code>heal</code> WebSocket event — the UI logs an orange HEAL line, increments the heal counter in the sidebar, and the run continues uninterrupted.</p>
+
+  <h2>Run History Record</h2>
+  <pre>{
+  id:        <span class="m">1</span>,
+  suite:     <span class="s">"Login Validation"</span>,
+  status:    <span class="s">"pass"</span> | <span class="s">"fail"</span>,
+  browser:   <span class="s">"chromium"</span>,
+  passed:    <span class="m">8</span>, failed: <span class="m">0</span>,
+  duration:  <span class="s">"4.2"</span>,              <span class="c">// seconds</span>
+  dataTable: <span class="s">"Login Test Data"</span>, <span class="c">// or null</span>
+  timestamp: <span class="m">1709123456789</span>
+}</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     UI ENVIRONMENTS
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-ui-environments">
+  <div class="page-header">
+    <div class="page-tag">PlayArc UI</div>
+    <h1>Environments</h1>
+    <p class="page-sub">How the active environment is selected in PlayArc and how it is configured in the Project Manager</p>
+  </div>
+
+  <h2>Topbar Environment Badge</h2>
+  <p>The coloured LED + name badge in the top-right corner of PlayArc shows the active environment. Clicking it calls <code>cycleEnv()</code> which advances <code>APP.envIdx</code> through the array and calls <code>syncEnvUI()</code> to update the LED colour and label from <code>playarc_envs</code>.</p>
+
+  <h2>syncEnvUI()</h2>
+  <pre><span class="k">function</span> syncEnvUI() {
+  <span class="k">const</span> envObjs = JSON.parse(localStorage.getItem(<span class="s">'playarc_envs'</span>)) || [];
+  <span class="k">if</span> (envObjs.length) {
+    APP.envs       = envObjs.map(e =&gt; e.name);
+    APP._envColors = envObjs.map(e =&gt; e.color || <span class="s">'var(--green)'</span>);
+    <span class="k">if</span> (APP.envIdx &gt;= APP.envs.length) APP.envIdx = <span class="m">0</span>;
+  }
+  document.getElementById(<span class="s">'envLbl'</span>).textContent       = APP.envs[APP.envIdx];
+  document.getElementById(<span class="s">'envLed'</span>).style.background = APP._envColors[APP.envIdx];
+}</pre>
+
+  <p>This function is called at startup, after <code>cycleEnv()</code>, and after <code>loadProjectFromStorage()</code>. Because it reads from <code>localStorage</code>, any changes made in the Project Manager's Environment panel are reflected in PlayArc immediately on the next cycle or page load.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PROJECT MANAGER OVERVIEW
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-pm-overview">
+  <div class="page-header">
+    <div class="page-tag">Project Manager</div>
+    <h1>Project Manager Overview</h1>
+    <p class="page-sub">ProjectManager.html — all project lifecycle management in one place</p>
+  </div>
+
+  <h2>Panels</h2>
+  <table class="map-table">
+    <thead><tr><th>Panel</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><strong>📁 My Projects</strong></td><td>Card grid of the 6 most recent projects + full sortable table. Click a card or row to set active. Active project is immediately written to <code>playarc_current</code> for PlayArc to consume on next load or reload.</td></tr>
+      <tr><td><strong>📥 Import Katalon</strong></td><td>4-step wizard: upload ZIP → analyse → preview/configure → import. Handles .rs, .groovy (Scripts/), .groovy (Libs/), .tc, .glbl, .csv, .prj.</td></tr>
+      <tr><td><strong>🌐 Environments</strong></td><td>Global environment CRUD. Set active environment, edit name/URL/colour/description/variables. Unlimited environments. Changes sync to PlayArc topbar via <code>playarc_envs</code>.</td></tr>
+      <tr><td><strong>⚙ Settings</strong></td><td>PlayArc Demo URL (for the ▶ Open button), default import browser, healscore threshold. Export all projects as JSON backup. Import backup. Clear all stored data.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Project Card Actions</h2>
+  <p><strong>Click card body</strong> → set as active project (writes <code>playarc_current</code>). <strong>▶ Open</strong> → activate then open PlayArcDemo in a new tab with <code>?project=id</code> query param. <strong>🗑</strong> → confirm delete. The active project card shows a cyan <em>ACTIVE</em> badge and highlighted border.</p>
+
+  <h2>localStorage Constants</h2>
+  <pre><span class="k">const</span> STORE_KEY  = <span class="s">'playarc_projects'</span>;     <span class="c">// Project[]</span>
+<span class="k">const</span> ENV_KEY    = <span class="s">'playarc_envs'</span>;         <span class="c">// Environment[]</span>
+<span class="k">const</span> PREFS_KEY  = <span class="s">'playarc_prefs'</span>;        <span class="c">// { playArcUrl, browser, healThresh }</span>
+<span class="k">const</span> ACTIVE_KEY = <span class="s">'playarc_active_project'</span>; <span class="c">// string (project id)</span>
+<span class="c">// Written on activation (not a constant):</span>
+<span class="c">//   'playarc_current'  → full Project object for PlayArcDemo</span></pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     KATALON IMPORT ENGINE
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-pm-import">
+  <div class="page-header">
+    <div class="page-tag">Project Manager</div>
+    <h1>Katalon Import Engine</h1>
+    <p class="page-sub">How a Katalon Studio ZIP is parsed into a full PlayArc project — entirely in-browser</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-ic">✅</div>
+    <div class="callout-body"><strong>No server or external libraries required.</strong> The import engine uses the File API and a hand-written ZIP central-directory parser. Uncompressed (stored) entries are decoded fully. Deflated entries are attempted via TextDecoder. Most Katalon ZIPs use stored compression for XML and Groovy files.</div>
+  </div>
+
+  <h2>4-Step Wizard</h2>
+  <table class="map-table">
+    <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1 — Upload</strong></td><td>Drag-and-drop or file picker. Accepts .zip files only. Displays import category overview cards (Objects, Suites, Keywords, Data Files, Profiles, Selector Healing).</td></tr>
+      <tr><td><strong>2 — Analyse</strong></td><td>ZIP is parsed in memory. Files are categorised. All six parsers run in sequence. A live progress log and progress bar stream to screen.</td></tr>
+      <tr><td><strong>3 — Configure</strong></td><td>Summary cards (object count, suite count, keyword count, data file count, brittle selector count). User sets project name (auto-filled from .prj), base URL, default browser, conflict mode. Full file table with healscore per object.</td></tr>
+      <tr><td><strong>4 — Done</strong></td><td>Project saved to <code>playarc_projects</code>. Profile environments merged into <code>playarc_envs</code>. Active project set automatically. Summary of imported counts shown.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>File Parsers</h2>
+
+  <h3>parseZip() — ZIP Central Directory Reader</h3>
+  <p>Reads the End-of-Central-Directory record to locate the central directory, then iterates all file entries. Uncompressed (method 0) files are decoded with <code>TextDecoder</code>. Directory entries are skipped. Returns an array of <code>{ name, content }</code> objects covering all files in the archive.</p>
+
+  <h3>parseRsFile() — Object Repository (.rs)</h3>
+  <p>Reads Katalon <code>.rs</code> XML. Extracts: object name from <code>&lt;n&gt;</code>, page folder from file path, <code>&lt;selectorMethod&gt;</code> (which selector Katalon designated as primary), all selector entries from <code>&lt;selectorCollection&gt;</code> (XPATH / CSS / BASIC), <code>aria-label</code> from <code>&lt;webElementProperties&gt;</code> blocks, <code>href</code> and text content properties, and the <code>xpath:idRelative</code> / <code>xpath:href</code> webElementXpaths entries. Healscore is calculated from these properties — see algorithm below.</p>
+
+  <h3>parseGroovy() — Test Scripts (Scripts/**/*.groovy)</h3>
+  <ul class="body-list">
+    <li>Builds a <code>varMap</code> upfront by scanning for <code>varName = WebUI.getText(findTestObject(...))</code> assignments, so <code>verifyMatch(var, expected)</code> can later resolve which object the variable came from.</li>
+    <li>Single-quoted bare strings (<code>'Click Login'</code>) on their own line are Katalon step labels — the parser pairs each one with the <code>WebUI.*</code> call on the following line via a backward scan.</li>
+    <li><code>WebUI.openBrowser('')</code> and <code>WebUI.closeBrowser()</code> are skipped and replaced by beforeSuite/afterSuite listener hooks.</li>
+    <li>Object names are resolved by matching the full <code>Page/Name</code> path from <code>findTestObject()</code> against the parsed object list using <code>matchObjName()</code>.</li>
+    <li>A screenshot step is appended automatically to every suite.</li>
+    <li>Handles: navigate, click, fill, setText, setEncryptedText, getText, verifyMatch, verifyElementVisible, verifyElementNotVisible, delay, waitForElementVisible, callTestCase, selectOptionByLabel/Value/Index, executeJavaScript, switchToFrame, and any other <code>WebUI.*</code> as a custom step.</li>
+  </ul>
+
+  <h3>parseCustomKeywords() — Custom Keyword Library (Libs/*.groovy)</h3>
+  <p>Scans for <code>@Keyword</code>-annotated methods. Extracts method name, typed parameters, and JSDoc description. The method body is scanned (brace-depth matching) and converted to a TypeScript comment stub with the original Groovy lines preserved as comments. All keywords from a single file are grouped into one <code>KeywordLib</code> entry.</p>
+
+  <h3>parseGlbl() — Execution Profiles (Profiles/*.glbl)</h3>
+  <p>Supports both the newer <code>&lt;GlobalVariableEntity&gt;…&lt;initValue&gt;</code> format and the older bare <code>&lt;n&gt;/&lt;value&gt;</code> pair format. Each profile becomes an <code>Environment</code> object. Colour is assigned based on the profile name (default → green, staging → orange, production/prod → red, dev/development → cyan, others → purple). The <code>default</code> profile is marked <code>active: true</code>.</p>
+
+  <h3>parseCsvFile() — Data Files (.csv)</h3>
+  <p>First row is treated as column headers. Subsequent rows become the data matrix. Handles quoted values and trims whitespace. Produces a <code>DataTable</code> with <code>cols[]</code> and <code>rows[][]</code>.</p>
+
+  <h3>Project Name (.prj)</h3>
+  <p>The Katalon project file (<code>*.prj</code>) contains a <code>&lt;n&gt;</code> element with the canonical project name. The import engine reads this and pre-fills the project name field in Step 3 — more accurate than inferring the name from the ZIP filename.</p>
+
+  <h2>Healscore Algorithm</h2>
+  <pre><span class="c">Base score: 40
+
+Bonuses:</span>
+  +30  aria-label property present            (most stable — semantically driven)
+  +35  data-testid in any selector            (purpose-built test hook)
+  +20  id-based XPath  //tag[@id='...']       (id attributes rarely change)
+  +15  href attribute present                 (links are stable by design)
+  +12  stable CSS — no child combinators, ≤5 class segments
+  +10  role attribute in selector             (ARIA role semantics)
+  + 8  short text content property (≤30 chars)
+
+<span class="c">Penalties:</span>
+  -25  3+ positional indices [1][2][3]… in XPath  (highly brittle)
+  - 6  per positional index up to 3
+  -15  preceding:: or following:: neighbour XPaths
+  -10  BASIC selectorMethod with normalize-space() pattern
+  - 8  CSS with &gt;6 chained class segments
+
+<span class="c">Clamped: max(10, min(95, rawScore))
+Objects with healscore &lt; healThresh (default 50) → flagged as brittle
+Brittle object names stored in project.brittle[] for UI highlighting</span></pre>
+
+  <h2>WebUI → PlayArc Action Mapping</h2>
+  <table class="map-table">
+    <thead><tr><th>Katalon WebUI call</th><th>PlayArc action</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="kat"><code>WebUI.navigateToUrl(url)</code></td><td class="pw">navigate</td><td>value = url</td></tr>
+      <tr><td class="kat"><code>WebUI.openBrowser('')</code></td><td class="pw">— skipped</td><td>Replaced by beforeSuite listener</td></tr>
+      <tr><td class="kat"><code>WebUI.closeBrowser()</code></td><td class="pw">— skipped</td><td>Replaced by afterSuite listener</td></tr>
+      <tr><td class="kat"><code>WebUI.click(obj)</code></td><td class="pw">click</td><td>selector resolved via bestSelector(obj)</td></tr>
+      <tr><td class="kat"><code>WebUI.setText(obj, text)</code></td><td class="pw">fill</td><td>value = text</td></tr>
+      <tr><td class="kat"><code>WebUI.setEncryptedText(obj, text)</code></td><td class="pw">fill</td><td>value = text</td></tr>
+      <tr><td class="kat"><code>WebUI.getText(obj)</code></td><td class="pw">— skipped</td><td>Variable captured in varMap for next verifyMatch</td></tr>
+      <tr><td class="kat"><code>WebUI.verifyMatch(var, expected)</code></td><td class="pw">assert_text</td><td>value = expected; selector from varMap lookup</td></tr>
+      <tr><td class="kat"><code>WebUI.verifyElementVisible(obj)</code></td><td class="pw">assert_text</td><td>→ expect(locator).toBeVisible()</td></tr>
+      <tr><td class="kat"><code>WebUI.verifyElementNotVisible(obj)</code></td><td class="pw">assert_text</td><td>selector prefixed <code>!</code> → not.toBeVisible()</td></tr>
+      <tr><td class="kat"><code>WebUI.delay(ms)</code></td><td class="pw">wait</td><td>value = ms</td></tr>
+      <tr><td class="kat"><code>WebUI.waitForElementVisible(obj)</code></td><td class="pw">wait</td><td>→ waitForSelector</td></tr>
+      <tr><td class="kat"><code>WebUI.callTestCase(tc)</code></td><td class="pw">custom</td><td>value = <code>// ⤵ callTestCase: path</code></td></tr>
+      <tr><td class="kat"><code>WebUI.selectOptionByLabel(obj, text)</code></td><td class="pw">select</td><td>value = option label</td></tr>
+      <tr><td class="kat"><code>WebUI.executeJavaScript(script)</code></td><td class="pw">js</td><td>value = script string</td></tr>
+      <tr><td class="kat">Any other <code>WebUI.*</code></td><td class="pw">custom</td><td>method name used as desc</td></tr>
+    </tbody>
+  </table>
+
+  <h2>bestSelector() Priority</h2>
+  <pre><span class="k">function</span> bestSelector(obj) {
+  <span class="k">if</span> (obj.aria)  <span class="k">return</span> obj.aria;                         <span class="c">// 1st: aria-label</span>
+  <span class="k">if</span> (obj.href)  <span class="k">return</span> <span class="s">`a[href="${obj.href}"]`</span>;         <span class="c">// 2nd: href</span>
+  <span class="k">if</span> (obj.css &amp;&amp; obj.css.length &lt; 80
+      &amp;&amp; !obj.css.includes(<span class="s">' &gt; '</span>)
+      &amp;&amp; obj.css.split(<span class="s">'.'</span>).length &lt;= 5)
+    <span class="k">return</span> obj.css;                                        <span class="c">// 3rd: compact CSS</span>
+  <span class="k">return</span> obj.xpath || obj.basic || obj.primarySelector;   <span class="c">// 4th: XPath</span>
+}</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PM ENVIRONMENT MANAGER
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-pm-envs">
+  <div class="page-header">
+    <div class="page-tag">Project Manager</div>
+    <h1>Environment Manager</h1>
+    <p class="page-sub">Configuring named environments and syncing them to PlayArc</p>
+  </div>
+
+  <p>Environments are stored <strong>globally</strong> (not per-project) in <code>playarc_envs</code>. This means Staging/Production/Dev are shared across all projects — configure once, use everywhere.</p>
+
+  <h2>Default Environments (seeded on first load)</h2>
+  <table class="map-table">
+    <thead><tr><th>Name</th><th>LED colour</th><th>Intended use</th></tr></thead>
+    <tbody>
+      <tr><td>Staging</td><td style="color:var(--orange)">● Orange</td><td>Pre-release / QA environment</td></tr>
+      <tr><td>Production</td><td style="color:var(--green)">● Green</td><td>Live production</td></tr>
+      <tr><td>Development</td><td style="color:var(--cyan)">● Cyan</td><td>Local development server</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Adding / Editing Environments</h2>
+  <p>Click <strong>+ Add Environment</strong>. Required: Name, Base URL. Optional: colour swatch (7 options), description. After creation, the edit modal (✏️) adds key=value variable pairs. Variables are injected as <code>process.env.KEY=value</code> by the server before spawning Playwright.</p>
+
+  <h2>Katalon Profile Import</h2>
+  <p>During ZIP import, any <code>Profiles/*.glbl</code> files are parsed by <code>parseGlbl()</code> and merged into <code>playarc_envs</code>. Existing environments with the same name are not duplicated. The Katalon <code>default</code> profile becomes the active environment.</p>
+
+  <h2>Sync to PlayArc</h2>
+  <pre><span class="c">// Project Manager writes on every env change:</span>
+localStorage.setItem(<span class="s">'playarc_envs'</span>, JSON.stringify(envs));
+
+<span class="c">// PlayArc reads on startup and cycleEnv():</span>
+<span class="k">const</span> envObjs  = JSON.parse(localStorage.getItem(<span class="s">'playarc_envs'</span>));
+APP.envs       = envObjs.map(e =&gt; e.name);
+APP._envColors = envObjs.map(e =&gt; e.color);</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     API OVERVIEW
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-api-overview">
+  <div class="page-header">
+    <div class="page-tag">Backend API</div>
+    <h1>API Overview</h1>
+    <p class="page-sub">The Node.js server that executes Playwright and stores run history</p>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-ic">💡</div>
+    <div class="callout-body"><strong>Base URL:</strong> <code>http://localhost:4000/api</code> — defined as <code>BASE_URL</code> at the top of PlayWriteDemo.html. Change this one constant to connect the UI to any environment.</div>
+  </div>
+
+  <h2>API Modules</h2>
+  <table class="map-table">
+    <thead><tr><th>Module</th><th>Routes</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Suites</td><td><code>GET POST /suites</code> <code>PUT DELETE /suites/:id</code></td><td>CRUD for test suites and their steps</td></tr>
+      <tr><td>Runs</td><td><code>POST /suites/:id/run</code> <code>GET /runs/:runId/results</code> <code>POST /runs/:runId/stop</code></td><td>Execute, stream, and abort runs</td></tr>
+      <tr><td>Objects</td><td><code>GET POST /objects</code> <code>PUT DELETE /objects/:id</code></td><td>Object Repository CRUD</td></tr>
+      <tr><td>Tables</td><td><code>GET POST /tables</code> <code>PUT DELETE /tables/:id</code></td><td>Data table CRUD</td></tr>
+      <tr><td>Keywords</td><td><code>GET POST /keywords</code> <code>PUT DELETE /keywords/:id</code></td><td>Keyword library CRUD</td></tr>
+      <tr><td>Listeners</td><td><code>GET POST /listeners</code> <code>PUT DELETE /listeners/:id</code></td><td>Test listener CRUD</td></tr>
+      <tr><td>Heal</td><td><code>POST /heal</code></td><td>Try fallback selectors on a live page</td></tr>
+      <tr><td>Inspect</td><td><code>POST /inspect</code></td><td>Capture element selectors from a live URL + coordinates</td></tr>
+      <tr><td>Screenshots</td><td><code>GET /screenshots/:runId/*</code></td><td>Serve captured screenshots statically</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Standard Error Shape</h2>
+  <pre>{ <span class="s">"error"</span>: <span class="s">"Suite not found"</span>,    <span class="s">"code"</span>: <span class="s">"NOT_FOUND"</span>  }  <span class="c">// 404</span>
+{ <span class="s">"error"</span>: <span class="s">"Validation failed"</span>, <span class="s">"details"</span>: [...]    }  <span class="c">// 400</span>
+{ <span class="s">"error"</span>: <span class="s">"Run already active"</span>                        }  <span class="c">// 409</span></pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     API — SUITES & RUNS
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-api-suites">
+  <div class="page-header">
+    <div class="page-tag">Backend API</div>
+    <h1>Suites &amp; Runs</h1>
+    <p class="page-sub">The core execution endpoints</p>
+  </div>
+
+  <div class="ep">
+    <div class="ep-head"><span class="badge get">GET</span><span class="ep-path">/api/suites</span><span class="ep-desc">List all suites</span></div>
+    <div class="ep-body"><div class="ep-section">Response 200</div><code>[{ id, name, url, browser, steps: Step[] }]</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/suites</span><span class="ep-desc">Create a suite</span></div>
+    <div class="ep-body"><div class="ep-section">Body</div><code>{ name, url, browser, steps }</code><div class="ep-section">Response 201</div><code>{ id, name, url, browser, steps }</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/suites/:id/run</span><span class="ep-desc">Start async run — responds immediately with 202</span></div>
+    <div class="ep-body"><div class="ep-section">Body</div><code>{ browser, headless, dataTableId? }</code><div class="ep-section">Response 202</div><code>{ runId, status: "queued", suite: "Suite Name" }</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge get">GET</span><span class="ep-path">/api/runs/:runId/results</span><span class="ep-desc">Poll run results (prefer WebSocket for live data)</span></div>
+    <div class="ep-body"><div class="ep-section">Response 200</div><code>{ runId, status, passed, failed, duration, steps: StepResult[] }</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/runs/:runId/stop</span><span class="ep-desc">Abort an active run</span></div>
+    <div class="ep-body"><div class="ep-section">Response 200</div><code>{ runId, status: "stopped" }</code></div>
+  </div>
+
+  <h2>Run Lifecycle States</h2>
+  <pre>queued → running → passed
+                 ↘ failed
+                 ↘ stopped  (POST /runs/:id/stop)
+                 ↘ error    (unexpected crash)</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     API — OBJECTS
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-api-objects">
+  <div class="page-header">
+    <div class="page-tag">Backend API</div>
+    <h1>Object Repository</h1>
+    <p class="page-sub">CRUD for test object selectors; healscore drives self-heal priority</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-ic">⚡</div>
+    <div class="callout-body">The <code>obj(page, 'Page/Name')</code> helper resolves selectors at runtime using priority: <strong>data-testid → aria-label → css → xpath</strong>. First non-empty value wins.</div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-head"><span class="badge get">GET</span><span class="ep-path">/api/objects</span><span class="ep-desc">List all objects</span></div>
+    <div class="ep-body"><div class="ep-section">Response 200</div><code>[{ id, name, page, sel, aria, css, xpath, healscore, uses }]</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/objects</span><span class="ep-desc">Create object</span></div>
+    <div class="ep-body"><div class="ep-section">Body</div><code>{ name, page, sel?, aria?, css?, xpath?, healscore? }</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge put">PUT</span><span class="ep-path">/api/objects/:id</span><span class="ep-desc">Update selectors or healscore</span></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge del">DELETE</span><span class="ep-path">/api/objects/:id</span><span class="ep-desc">Delete — does not cascade to steps</span></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     API — DATA TABLES
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-api-tables">
+  <div class="page-header">
+    <div class="page-tag">Backend API</div>
+    <h1>Data Tables</h1>
+    <p class="page-sub">Test data management — <code>{{token}}</code> substitution at runtime</p>
+  </div>
+
+  <div class="ep">
+    <div class="ep-head"><span class="badge get">GET</span><span class="ep-path">/api/tables</span><span class="ep-desc">List all tables</span></div>
+    <div class="ep-body"><div class="ep-section">Response 200</div><code>[{ id, name, desc, cols: string[], rows: string[][] }]</code></div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/tables</span><span class="ep-desc">Create table</span></div>
+    <div class="ep-body"><div class="ep-section">Body</div><code>{ name, desc, cols, rows }</code></div>
+  </div>
+
+  <h2>Token Substitution</h2>
+  <pre><span class="c">// Step value contains a token:</span>
+<span class="s">"{{email}}"</span>
+
+<span class="c">// Runner resolves at execution time:</span>
+<span class="k">const</span> ci  = dataTable.cols.indexOf(<span class="s">'email'</span>);
+<span class="k">const</span> val = dataRow[ci];   <span class="c">// → "user@example.com"</span>
+
+<span class="c">// Playwright step becomes:</span>
+<span class="k">await</span> page.fill(selector, <span class="s">'user@example.com'</span>);</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     API — SELF-HEAL
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-api-heal">
+  <div class="page-header">
+    <div class="page-tag">Backend API</div>
+    <h1>Self-Heal &amp; Inspect</h1>
+    <p class="page-sub">Automatic selector recovery and live element capture</p>
+  </div>
+
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/heal</span><span class="ep-desc">Try fallback selectors against a live page</span></div>
+    <div class="ep-body">
+      <div class="ep-section">Body</div><code>{ selector: string, fallbacks: string[], url: string }</code>
+      <div class="ep-section">Response 200 — healed</div><code>{ healed: true, newSelector: "[aria-label='login']", strategy: "aria" }</code>
+      <div class="ep-section">Response 422 — failed</div><code>{ healed: false, tried: 3, error: "No fallback resolved" }</code>
+    </div>
+  </div>
+  <div class="ep">
+    <div class="ep-head"><span class="badge post">POST</span><span class="ep-path">/api/inspect</span><span class="ep-desc">Capture element selectors from coordinates on a live page</span></div>
+    <div class="ep-body">
+      <div class="ep-section">Body</div><code>{ url: string, x: number, y: number }</code>
+      <div class="ep-section">Response 200</div><code>{ sel, aria, css, xpath, tag, text, screenshot }</code>
+    </div>
+  </div>
+
+  <h2>Self-Heal Flow</h2>
+  <pre><span class="c">1.  Playwright step throws — selector not found on page</span>
+<span class="c">2.  Runner catches error before marking step failed</span>
+<span class="c">3.  POST /heal { selector: primary, fallbacks: [aria, css, xpath], url }</span>
+<span class="c">4.  Server opens page in headless Chromium</span>
+<span class="c">5.  For each fallback: tries page.locator(fb).count() &gt; 0</span>
+<span class="c">6.  Returns first resolving fallback with strategy label</span>
+<span class="c">7.  Run continues with healed selector — step marked pass</span>
+<span class="c">8.  WS broadcasts { type:'heal', original, healed, strategy }</span>
+<span class="c">9.  UI logs orange HEAL line, increments sidebar heal counter</span>
+<span class="c">10. PUT /objects/:id { [strategy]: healed } — persists for next run</span></pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     WEBSOCKET
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-websocket">
+  <div class="page-header">
+    <div class="page-tag">Backend API</div>
+    <h1>WebSocket Protocol</h1>
+    <p class="page-sub">Real-time run log and step status streaming</p>
+  </div>
+
+  <h2>Connection</h2>
+  <pre><span class="c">// Connect immediately after POST /suites/:id/run returns 202</span>
+<span class="k">const</span> { runId } = <span class="k">await</span> fetch(...).then(r =&gt; r.json());
+<span class="k">const</span> ws = <span class="k">new</span> WebSocket(<span class="s">`ws://localhost:4000/ws?runId=${runId}`</span>);
+ws.onopen    = () =&gt; console.log(<span class="s">'connected'</span>);
+ws.onmessage = ({ data }) =&gt; handleEvent(JSON.parse(data));
+ws.onerror   = (e) =&gt; console.error(<span class="s">'WS error'</span>, e);
+ws.onclose   = () =&gt; console.log(<span class="s">'stream closed'</span>);</pre>
+
+  <h2>Server → Client Events</h2>
+  <div class="ws-event"><div class="ws-type">connected</div><div class="ws-when">On socket open</div><div class="ws-payload">{ type: "connected", runId, ts }</div></div>
+  <div class="ws-event"><div class="ws-type">status</div><div class="ws-when">Run state change</div><div class="ws-payload">{ type: "status", status: "running"|"stopped", ts }</div></div>
+  <div class="ws-event"><div class="ws-type">log</div><div class="ws-when">Every log line</div><div class="ws-payload">{ type: "log", level: "INFO"|"STEP"|"PASS"|"FAIL"|"WARN"|"HEAL"|"API"|"DATA", msg, ts }</div></div>
+  <div class="ws-event"><div class="ws-type">step</div><div class="ws-when">Step start/end</div><div class="ws-payload">{ type: "step", status: "running"|"passed"|"failed", title, duration?, error?, ts }</div></div>
+  <div class="ws-event"><div class="ws-type">heal</div><div class="ws-when">Selector healed</div><div class="ws-payload">{ type: "heal", original, healed, strategy: "aria"|"testid"|"css"|"xpath", ts }</div></div>
+  <div class="ws-event"><div class="ws-type">complete</div><div class="ws-when">Run finished</div><div class="ws-payload">{ type: "complete", status: "passed"|"failed", passed, failed, duration, ts }</div></div>
+  <div class="ws-event"><div class="ws-type">error</div><div class="ws-when">Crash</div><div class="ws-payload">{ type: "error", msg, ts }</div></div>
+  <div class="ws-event"><div class="ws-type">stopped</div><div class="ws-when">Manual stop</div><div class="ws-payload">{ type: "stopped", ts }</div></div>
+
+  <h2>Client → Server</h2>
+  <pre>ws.send(JSON.stringify({ type: <span class="s">"stop"</span> }));  <span class="c">// abort active run</span></pre>
+
+  <h2>Log Level Colours</h2>
+  <table class="map-table">
+    <thead><tr><th>Level</th><th>Meaning</th><th>UI colour</th></tr></thead>
+    <tbody>
+      <tr><td><code>INFO</code></td><td>General messages, run metadata</td><td style="color:var(--cyan)">Cyan</td></tr>
+      <tr><td><code>STEP</code></td><td>Each test step begins</td><td style="color:var(--purple)">Purple</td></tr>
+      <tr><td><code>PASS</code></td><td>Step passed</td><td style="color:var(--green)">Green</td></tr>
+      <tr><td><code>FAIL</code></td><td>Step or assertion failed</td><td style="color:var(--red)">Red</td></tr>
+      <tr><td><code>WARN</code></td><td>Non-fatal issue, deprecated selector</td><td style="color:var(--yellow)">Yellow</td></tr>
+      <tr><td><code>HEAL</code></td><td>Self-healing triggered and resolved</td><td style="color:var(--orange)">Orange</td></tr>
+      <tr><td><code>API</code></td><td>API call log (method + path + status)</td><td style="color:#009DC4">Cyan dim</td></tr>
+      <tr><td><code>DATA</code></td><td>{{token}} substitution resolved</td><td style="color:var(--yellow)">Yellow</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Full Handler Example</h2>
+  <pre><span class="k">function</span> handleEvent(event) {
+  <span class="k">switch</span> (event.type) {
+    <span class="k">case</span> <span class="s">'log'</span>:
+      appendToLogPanel(event.level, event.msg, event.ts); <span class="k">break</span>;
+    <span class="k">case</span> <span class="s">'step'</span>:
+      updateStepStatus(event.title, event.status, event.duration);
+      <span class="k">if</span> (event.error) showStepError(event.title, event.error); <span class="k">break</span>;
+    <span class="k">case</span> <span class="s">'heal'</span>:
+      showHealNotification(event.original, event.healed, event.strategy);
+      incrementHealCounter(); <span class="k">break</span>;
+    <span class="k">case</span> <span class="s">'complete'</span>:
+      showRunSummary(event.status, event.passed, event.failed, event.duration);
+      ws.close(); <span class="k">break</span>;
+    <span class="k">case</span> <span class="s">'error'</span>:
+      showError(event.msg); ws.close(); <span class="k">break</span>;
+  }
+}</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     KATALON MAPPING
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-katalon">
+  <div class="page-header">
+    <div class="page-tag">Reference</div>
+    <h1>Katalon → Playwright Mapping</h1>
+    <p class="page-sub">Every Katalon concept and its direct PlayArc / Playwright equivalent</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-ic">✅</div>
+    <div class="callout-body"><strong>The concepts are identical — only the technology changes.</strong> Groovy becomes TypeScript. XML config becomes JSON. <code>WebUI.click()</code> becomes <code>page.click()</code>. The Project Manager's import engine handles this conversion automatically from a Katalon ZIP.</div>
+  </div>
+
+  <table class="map-table">
+    <thead><tr><th>Katalon</th><th></th><th>PlayArc / Playwright</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td class="kat">Test Case</td><td class="arrow">→</td><td class="pw">test() block in .spec.ts</td><td>Builder → steps</td></tr>
+      <tr><td class="kat">Test Suite</td><td class="arrow">→</td><td class="pw">test.describe() in .spec.ts</td><td>Builder → suite</td></tr>
+      <tr><td class="kat">Test Suite Collection</td><td class="arrow">→</td><td class="pw">playwright.config.ts projects[]</td><td>Runner → multi-suite</td></tr>
+      <tr><td class="kat">Object Repository (.rs)</td><td class="arrow">→</td><td class="pw">objectRepo.ts REPO map + obj() helper</td><td>Object Repo tab</td></tr>
+      <tr><td class="kat">findTestObject('Page/name')</td><td class="arrow">→</td><td class="pw">obj(page, 'Page/name') → Playwright Locator</td><td>Auto-generated</td></tr>
+      <tr><td class="kat">selectorMethod</td><td class="arrow">→</td><td class="pw">Determines which selector entry is primary in REPO</td><td>Import engine</td></tr>
+      <tr><td class="kat">Custom Keywords class (Groovy)</td><td class="arrow">→</td><td class="pw">TypeScript class with async methods</td><td>Keyword Library tab</td></tr>
+      <tr><td class="kat">@Keyword annotation</td><td class="arrow">→</td><td class="pw">public async method() on the TS class</td><td>Keyword editor</td></tr>
+      <tr><td class="kat">CustomKeywords.'Pkg.method'()</td><td class="arrow">→</td><td class="pw">const kw = new Pkg(page); await kw.method()</td><td>keyword step</td></tr>
+      <tr><td class="kat">Libs/*.groovy</td><td class="arrow">→</td><td class="pw">KeywordLib (parsed by parseCustomKeywords)</td><td>Import engine</td></tr>
+      <tr><td class="kat">Test Data Excel/CSV</td><td class="arrow">→</td><td class="pw">DataTable with cols[] and rows[][]</td><td>Data Tables tab</td></tr>
+      <tr><td class="kat">Data binding #{variable}</td><td class="arrow">→</td><td class="pw">{{column}} token → resolved at runtime</td><td>Step value field</td></tr>
+      <tr><td class="kat">Execution Profile (.glbl)</td><td class="arrow">→</td><td class="pw">Environment (name, url, vars[])</td><td>Environment Manager</td></tr>
+      <tr><td class="kat">GlobalVariable.VAR</td><td class="arrow">→</td><td class="pw">process.env.VAR injected by server before run</td><td>Environment vars</td></tr>
+      <tr><td class="kat">Test Listeners @BeforeTestSuite</td><td class="arrow">→</td><td class="pw">test.beforeAll() in fixtures.ts</td><td>Listeners tab</td></tr>
+      <tr><td class="kat">Test Listeners @AfterTestSuite</td><td class="arrow">→</td><td class="pw">test.afterAll() in fixtures.ts</td><td>Listeners tab</td></tr>
+      <tr><td class="kat">Test Listeners @BeforeTestCase</td><td class="arrow">→</td><td class="pw">test.beforeEach() in fixtures.ts</td><td>Listeners tab</td></tr>
+      <tr><td class="kat">Test Listeners @AfterTestCase</td><td class="arrow">→</td><td class="pw">test.afterEach() in fixtures.ts</td><td>Listeners tab</td></tr>
+      <tr><td class="kat">WebUI.click(obj)</td><td class="arrow">→</td><td class="pw">await page.click(selector)</td><td>CLICK step</td></tr>
+      <tr><td class="kat">WebUI.setText(obj, text)</td><td class="arrow">→</td><td class="pw">await page.fill(selector, text)</td><td>FILL step</td></tr>
+      <tr><td class="kat">WebUI.getText(obj)</td><td class="arrow">→</td><td class="pw">Captured in varMap; used by next verifyMatch</td><td>Import engine</td></tr>
+      <tr><td class="kat">WebUI.verifyMatch(var, val)</td><td class="arrow">→</td><td class="pw">await expect(locator).toContainText(val)</td><td>ASSERT step</td></tr>
+      <tr><td class="kat">WebUI.verifyElementVisible(obj)</td><td class="arrow">→</td><td class="pw">await expect(locator).toBeVisible()</td><td>ASSERT step</td></tr>
+      <tr><td class="kat">WebUI.verifyElementNotVisible(obj)</td><td class="arrow">→</td><td class="pw">await expect(locator).not.toBeVisible()</td><td>ASSERT step (! prefix)</td></tr>
+      <tr><td class="kat">WebUI.takeScreenshot()</td><td class="arrow">→</td><td class="pw">await page.screenshot({ path })</td><td>SHOT step</td></tr>
+      <tr><td class="kat">WebUI.executeJavaScript()</td><td class="arrow">→</td><td class="pw">await page.evaluate(() => {...})</td><td>JS step</td></tr>
+      <tr><td class="kat">WebUI.delay(ms)</td><td class="arrow">→</td><td class="pw">await page.waitForTimeout(ms)</td><td>WAIT step</td></tr>
+      <tr><td class="kat">WebUI.callTestCase(tc)</td><td class="arrow">→</td><td class="pw">Custom step with comment stub</td><td>Import note</td></tr>
+      <tr><td class="kat">FailureHandling.STOP_ON_FAILURE</td><td class="arrow">→</td><td class="pw">Default Playwright behaviour (throws on fail)</td><td>Built-in</td></tr>
+      <tr><td class="kat">Smart Wait</td><td class="arrow">→</td><td class="pw">Playwright auto-waits on all actions by default</td><td>Built-in</td></tr>
+      <tr><td class="kat">Allure Reporter</td><td class="arrow">→</td><td class="pw">@playwright/test HTML reporter</td><td>Reports tab</td></tr>
+      <tr><td class="kat">Self-healing objects</td><td class="arrow">→</td><td class="pw">POST /heal + healscore per object</td><td>Self-Heal API</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     CODE GENERATION
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-codegen">
+  <div class="page-header">
+    <div class="page-tag">Reference</div>
+    <h1>Code Generation</h1>
+    <p class="page-sub">The four server functions called in order before every Playwright run</p>
+  </div>
+
+  <pre><span class="n">writeKeywordFiles</span>()       <span class="c">// → generated-tests/keywords/*.ts</span>
+<span class="n">writeObjectRepoHelper</span>()   <span class="c">// → generated-tests/helpers/objectRepo.ts</span>
+<span class="n">writeListenerFile</span>()       <span class="c">// → generated-tests/helpers/fixtures.ts</span>
+<span class="n">generateSpec</span>(suite, runId) <span class="c">// → generated-tests/specs/Name-runId.spec.ts</span></pre>
+
+  <h2>Listener Event → Playwright Hook</h2>
+  <pre><span class="k">const</span> hookMap = {
+  beforeSuite: <span class="s">'test.beforeAll(async ({ page }) => {'</span>,
+  afterSuite:  <span class="s">'test.afterAll(async ({ page }) => {'</span>,
+  beforeStep:  <span class="s">'test.beforeEach(async ({ page }) => {'</span>,
+  afterStep:   <span class="s">'test.afterEach(async ({ page, error }) => {'</span>,
+  onError:     <span class="s">'// globalSetup: process.on("unhandledRejection"...'</span>,
+};</pre>
+
+  <h2>Generated Keyword TypeScript Class</h2>
+  <pre><span class="c">// generated-tests/keywords/PizzaHQKeywords.ts</span>
+<span class="k">import</span> { Page, expect } <span class="k">from</span> <span class="s">'@playwright/test'</span>;
+<span class="k">import</span> { obj } <span class="k">from</span> <span class="s">'../helpers/objectRepo'</span>;
+
+<span class="k">export class</span> <span class="n">PizzaHQKeywords</span> {
+  <span class="k">constructor</span>(<span class="k">private readonly</span> page: Page) {}
+
+  <span class="k">async</span> openApp(): Promise&lt;<span class="k">void</span>&gt; {
+    <span class="c">// Katalon: WebUI.openBrowser('') + WebUI.navigateToUrl(...)</span>
+    <span class="k">await</span> <span class="k">this</span>.page.goto(<span class="s">'https://jovial-dust-09858.pktriot.net/#/'</span>);
+    <span class="k">await</span> <span class="k">this</span>.page.waitForLoadState(<span class="s">'networkidle'</span>);
+  }
+
+  <span class="k">async</span> assertLoginError(): Promise&lt;<span class="k">void</span>&gt; {
+    <span class="c">// Katalon: WebUI.verifyElementVisible(findTestObject('LoginDialog/lblWarning...'))</span>
+    <span class="k">await</span> expect(<span class="k">this</span>.page.locator(<span class="s">'div.v-alert.alertMessage'</span>)).toBeVisible();
+  }
+}</pre>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     QUICK START
+══════════════════════════════════════════════════════════ -->
+<div class="page-section" id="sec-quickstart">
+  <div class="page-header">
+    <div class="page-tag">Reference</div>
+    <h1>Quick Start</h1>
+    <p class="page-sub">Get the full stack running in under 10 minutes</p>
+  </div>
+
+  <h2>1 — Install server dependencies</h2>
+  <pre>cd playarc-server
+npm install
+npx playwright install    <span class="c"># downloads Chromium, Firefox, WebKit</span></pre>
+
+  <h2>2 — Start the server</h2>
+  <pre>node server.js
+
+<span class="c">╔════════════════════════════════════════╗
+║  PlayArc Server  →  localhost:4000     ║
+║  REST   http://localhost:4000/api      ║
+║  WS     ws://localhost:4000/ws         ║
+╚════════════════════════════════════════╝</span></pre>
+
+  <h2>3 — Open the apps</h2>
+  <p>Open <code>ProjectManager.html</code> to manage projects. Click <strong>📁 My Projects</strong> to see the pre-seeded Pizza HQ demo project. Click <strong>▶ Open</strong> on it to launch <code>PlayWriteDemo.html</code> with that project loaded.</p>
+  <p>Alternatively, open <code>PlayWriteDemo.html</code> directly — it will auto-load whatever project was last set active in the Project Manager.</p>
+
+  <div class="callout warn">
+    <div class="callout-ic">⚠️</div>
+    <div class="callout-body"><strong>CORS note:</strong> The server allows all origins (<code>*</code>) for development. Lock this down before exposing to a network.</div>
+  </div>
+
+  <h2>4 — Import a Katalon project</h2>
+  <p>In Project Manager, go to <strong>📥 Import Katalon</strong>. Drop your Katalon project ZIP file onto the upload zone. The engine will analyse all .rs, .groovy, .glbl, .csv and Libs/ files automatically, show a preview with heatscores per object, then create a fully-populated PlayArc project on confirmation.</p>
+
+  <h2>5 — Run a test suite</h2>
+  <pre><span class="c"># In the UI: open PlayArcDemo → Runner tab → ▶ Run
+# Or directly via curl:</span>
+curl -X POST http://localhost:4000/api/suites/1/run \
+     -H "Content-Type: application/json" \
+     -d '{"browser":"chromium","headless":true}'
+
+<span class="c"># Returns:</span>
+{ "runId": "run_a3f2b8c1", "status": "queued", "suite": "Login Validation" }</pre>
+
+  <h2>6 — Environment variables</h2>
+  <pre>PORT=4000               <span class="c"># server port (default 4000)</span>
+DB_PATH=./playarc.db    <span class="c"># SQLite file location</span>
+TESTS_DIR=./generated-tests   <span class="c"># where .spec.ts files are written</span>
+RESULTS_DIR=./test-results    <span class="c"># Playwright output</span>
+SHOTS_DIR=./screenshots       <span class="c"># screenshot storage</span></pre>
+
+  <h2>Files Delivered</h2>
+  <a class="dl-link" href="https://kbcianfa.github.io/PlayArcV2/PlayWriteDemo.html" target="_blank">
+    <span style="font-size:22px;flex-shrink:0">🎭</span>
+    <div>
+      <div style="font-family:var(--fm);font-size:12px;font-weight:700;color:var(--cyan)">PlayWriteDemo.html</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px">Main execution UI — Dashboard, Builder, Objects, Runner, Reports · 2,727 lines</div>
+    </div>
+    <span style="margin-left:auto;font-size:10px;color:var(--t3);flex-shrink:0">↗ Open</span>
+  </a>
+  <a class="dl-link" href="https://kbcianfa.github.io/PlayArcV2/ProjectManager.html" target="_blank">
+    <span style="font-size:22px;flex-shrink:0">📁</span>
+    <div>
+      <div style="font-family:var(--fm);font-size:12px;font-weight:700;color:var(--green)">ProjectManager.html</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px">Project lifecycle, Katalon import wizard, environment management · 1,891 lines</div>
+    </div>
+    <span style="margin-left:auto;font-size:10px;color:var(--t3);flex-shrink:0">↗ Open</span>
+  </a>
+  <a class="dl-link" href="https://kbcianfa.github.io/PlayArcV2/server.js" download>
+    <span style="font-size:22px;flex-shrink:0">⚙️</span>
+    <div>
+      <div style="font-family:var(--fm);font-size:12px;font-weight:700;color:var(--orange)">server.js</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px">Node.js backend — Express + WebSocket + Playwright runner + SQLite · 828 lines</div>
+    </div>
+    <span style="margin-left:auto;font-size:10px;color:var(--t3);flex-shrink:0">↓ Download</span>
+  </a>
+  <a class="dl-link" href="https://kbcianfa.github.io/PlayArcV2/package.json" download>
+    <span style="font-size:22px;flex-shrink:0">📦</span>
+    <div>
+      <div style="font-family:var(--fm);font-size:12px;font-weight:700;color:var(--yellow)">package.json</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:2px">npm dependencies — express · ws · better-sqlite3 · @playwright/test</div>
+    </div>
+    <span style="margin-left:auto;font-size:10px;color:var(--t3);flex-shrink:0">↓ Download</span>
+  </a>
+</div>
+
+
+</div><!-- .content -->
+</main>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById('sec-' + id);
+  if (sec) sec.classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.querySelector('main').scrollTop = 0;
+}
+</script>
+</body>
+</html>
