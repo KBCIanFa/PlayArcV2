@@ -192,7 +192,7 @@ textarea.fi{resize:vertical;min-height:70px;}
 
 <!-- ── TOP BAR ── -->
 <div id="topbar">
-  <a class="logo" href="https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html" target="_blank">
+  <a class="logo" href="https://kbcianfa.github.io/PlayArcV2/PlayWriteDemo.html" target="_blank">
     <div class="logo-mark">🎭</div>
     Play<em>Write</em>
     <span class="logo-sub">PROJECT MANAGER</span>
@@ -487,7 +487,7 @@ textarea.fi{resize:vertical;min-height:70px;}
     <div class="stl" style="margin-top:0">PlayWrite Demo URL</div>
     <div class="ffield">
       <label class="fl">URL for "Open in PlayWrite" button</label>
-      <input class="fi mono" id="prefPlayArcUrl" placeholder="https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html">
+      <input class="fi mono" id="prefPlayArcUrl" placeholder="https://kbcianfa.github.io/PlayArcV2/PlayWriteDemo.html">
     </div>
 
     <div class="stl">Import Defaults</div>
@@ -545,8 +545,8 @@ textarea.fi{resize:vertical;min-height:70px;}
     <div style="font-size:12px;color:var(--t2);max-width:400px;line-height:1.7">Manage multiple Playwright automation projects. Import from Katalon Studio, switch between projects, and configure environments — all without touching code.</div>
     <div class="stl" style="width:100%;max-width:400px">Links</div>
     <div style="display:flex;gap:10px">
-      <a href="https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html" target="_blank" class="btn btn-p">🎭 Open PlayWrite</a>
-      <a href="https://kbcianfa.github.io/PlayWrite/PlayWrite-Developer-Reference.html" target="_blank" class="btn btn-g">📋 Developer Docs</a>
+      <a href="https://kbcianfa.github.io/PlayArcV2/PlayWriteDemo.html" target="_blank" class="btn btn-p">🎭 Open PlayWrite</a>
+      <a href="https://kbcianfa.github.io/PlayArcV2/PlayWrite-Developer-Reference.html" target="_blank" class="btn btn-g">📋 Developer Docs</a>
     </div>
   </div>
 </div>
@@ -685,7 +685,7 @@ let envs      = loadStore(ENV_KEY, [
   { id:'env-production', name:'Production',  url:'https://your-app.com',             color:'var(--green)',  desc:'Live production',         vars:[], active:true  },
   { id:'env-dev',        name:'Development', url:'http://localhost:3000',             color:'var(--cyan)',   desc:'Local dev server',         vars:[], active:false },
 ]);
-let prefs     = loadStore(PREFS_KEY, { playArcUrl:'https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html', browser:'chromium', healThresh:50 });
+let prefs     = loadStore(PREFS_KEY, { playArcUrl:'https://kbcianfa.github.io/PlayArcV2/PlayWriteDemo.html', browser:'chromium', healThresh:50 });
 let activeId  = loadStore(ACTIVE_KEY, null);
 
 // ════════════════════════════════════════════════════════════
@@ -838,7 +838,7 @@ function deleteProject(id) {
 
 function openInPlayArc() {
   if (!activeId) { toast('No project selected','⚠️'); return; }
-  const url = prefs.playArcUrl || 'https://kbcianfa.github.io/PlayWrite/PlayWriteDemo.html';
+  const url = prefs.playArcUrl || 'https://kbcianfa.github.io/PlayArcV2/PlayWriteDemo.html';
   window.open(url + '?project=' + activeId, '_blank');
   toast('Opened PlayWrite with active project','▶');
 }
